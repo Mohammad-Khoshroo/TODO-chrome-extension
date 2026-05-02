@@ -92,7 +92,7 @@ body {
 .task-list { list-style: none; padding: 0; margin: 0; }
 
 .task-item { 
-    font-size: 1.6em; /* یا هر سایزی که برای عنوان در نظر دارید */
+    /* font-size: 1.6em; یا هر سایزی که برای عنوان در نظر دارید */
     display: flex;
     align-items: center;
      margin-bottom: 8px;

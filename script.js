@@ -94,6 +94,7 @@ function renderAllNotes() {
         `;
         fridgeContainer.appendChild(noteDiv);
     });
+    autoResizeTextareas();
 }
 
 addNoteBtn.addEventListener('click', () => {
