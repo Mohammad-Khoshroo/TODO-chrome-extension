@@ -145,6 +145,13 @@ function renderAllNotes() {
         const noteDiv = document.createElement('div');
         noteDiv.className = `sticky-note ${note.colorClass} ${activeNoteIndex === noteIndex ? 'active' : ''}`;
         
+        // در زمان ساخت یا آپدیت نوت:
+        if (note.tasks.length > 6) { 
+            noteDiv.classList.add('multi-page');
+        } else {
+            noteDiv.classList.remove('multi-page');
+        }
+
         // نامرتب‌سازی طبیعی‌تر (چرخش بین 3- تا 3 درجه و جابجایی تصادفی)
         const rotate = (Math.random() * 6) - 3; 
         const marginTop = Math.random() * 15;
@@ -155,7 +162,7 @@ function renderAllNotes() {
         noteDiv.style.marginLeft = `${marginLeft}px`;
         noteDiv.dataset.noteIndex = noteIndex;
 
-        
+
         let tasksHTML = note.tasks.map((task, taskIndex) => `
             <li class="task-item ${task.scribbled ? 'scribbled' : ''}" data-task-index="${taskIndex}">
                 <input type="checkbox" class="task-checkbox" ${task.checked ? 'checked' : ''}>

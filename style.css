@@ -155,11 +155,11 @@ body {
 } */
 
 #fridge-container {
-    display: flex;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    align-items: flex-start; /* حل مشکل کش آمدن نوت‌های هم‌ردیف */
-    gap: 15px;
+    /* حذف display: flex و مقادیر قبلی */
+    display: block; 
+    column-width: 260px; /* عرض تقریبی هر ستون */
+    column-gap: 20px;
+    padding: 20px;
     padding-bottom: 100px;
 }
 
@@ -174,18 +174,36 @@ body {
     overflow-y: auto;
     transition: box-shadow 0.2s, transform 0.2s;
 } */
+
 .sticky-note {
+    /* جلوگیری از نصف شدن نوت بین دو ستون */
+    break-inside: avoid;
+    page-break-inside: avoid;
+    
     width: 240px;
     min-height: 240px;
     padding: 20px 15px;
+    margin-bottom: 20px; /* فاصله نوت‌ها در راستای عمودی */
     box-shadow: 3px 5px 15px rgba(0,0,0,0.2);
     border-radius: 2px 2px 10px 2px;
     position: relative;
     display: flex;
     flex-direction: column;
+    transition: box-shadow 0.2s;
     
-    /* افکت روی هم افتادن کاغذها (overlap) هر 240 پیکسل */
-    /* یک سایه تیره و یک لبه روشن برای القای حس کاغذ جدید */
+    /* افکت چند کاغذی را از اینجا حذف کنید تا روی همه اعمال نشود */
+    background-image: none; 
+}
+
+.sticky-note.active {
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.5), 5px 8px 15px rgba(0,0,0,0.3);
+    transform: scale(1.02) !important;
+    z-index: 10;
+}
+
+/* این کلاس را فقط وقتی نوت طولانی است به آن اضافه می‌کنیم */
+.sticky-note.multi-page {
+    /* استفاده از بک‌گراند خط‌دار که از پایین برگه اول شروع می‌شود */
     background-image: repeating-linear-gradient(
         to bottom,
         transparent 0px,
@@ -194,14 +212,10 @@ body {
         rgba(255, 255, 255, 0.5) 239px,
         transparent 240px
     );
-    transition: box-shadow 0.2s;
+    /* بک‌گراند از پیکسل 240 (پایان برگه اول) شروع به تکرار می‌کند */
+    background-position: 0 240px;
 }
 
-.sticky-note.active {
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.5), 5px 8px 15px rgba(0,0,0,0.3);
-    transform: scale(1.02) !important;
-    z-index: 10;
-}
 
 .note-title {
     font-weight: bold;
