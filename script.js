@@ -83,12 +83,31 @@ const addNoteBtn = document.getElementById('add-note-btn');
 
 let notes = [];
 let activeNoteIndex = null;
+const DELETE_HOURS = 2;
+const DELETE_THRESHOLD_MS = DELETE_HOURS * 60 * 60 * 1000;
 
 const getRandomColorClass = () => `color-${Math.floor(Math.random() * 4)}`;
+
+function cleanupOldScribbles() {
+    let changed = false;
+    const now = Date.now();
+    notes.forEach(note => {
+        const initialLen = note.tasks.length;
+        note.tasks = note.tasks.filter(task => {
+            if (task.scribbled && task.scribbledAt && (now - task.scribbledAt > DELETE_THRESHOLD_MS)) {
+                return false; // پاک کردن تسک
+            }
+            return true;
+        });
+        if (note.tasks.length !== initialLen) changed = true;
+    });
+    if (changed) { saveNotes(); renderAllNotes(); }
+}
 
 function loadNotes() {
     chrome.storage.local.get(['fridgeNotes'], function(result) {
         if (result.fridgeNotes) notes = result.fridgeNotes;
+        cleanupOldScribbles();
         renderAllNotes();
     });
 }
@@ -97,12 +116,40 @@ function saveNotes() {
     chrome.storage.local.set({ 'fridgeNotes': notes });
 }
 
+// function renderAllNotes() {
+//     fridgeContainer.innerHTML = '';
+//     notes.forEach((note, noteIndex) => {
+//         const noteDiv = document.createElement('div');
+//         noteDiv.className = `sticky-note ${note.colorClass} ${activeNoteIndex === noteIndex ? 'active' : ''}`;
+//         noteDiv.style.transform = `rotate(${Math.random() * 2 - 1}deg)`;
+//         noteDiv.dataset.noteIndex = noteIndex;
+
+//         let tasksHTML = note.tasks.map((task, taskIndex) => `
+//             <li class="task-item ${task.scribbled ? 'scribbled' : ''}" data-task-index="${taskIndex}">
+//                 <input type="checkbox" class="task-checkbox" ${task.checked ? 'checked' : ''}>
+//                 <input type="text" class="task-input" value="${task.text}" placeholder="Task...">
+//             </li>
+//         `).join('');
+
+//         noteDiv.innerHTML = `
+//             <div class="magnetic-pen" draggable="true" title="Drag me to a task to scribble!">🖍️</div>
+//             <input type="text" class="note-title" value="${note.title}" placeholder="Note Title...">
+//             <ul class="task-list">${tasksHTML}</ul>
+//         `;
+//         fridgeContainer.appendChild(noteDiv);
+//     });
+// }
 function renderAllNotes() {
     fridgeContainer.innerHTML = '';
     notes.forEach((note, noteIndex) => {
         const noteDiv = document.createElement('div');
         noteDiv.className = `sticky-note ${note.colorClass} ${activeNoteIndex === noteIndex ? 'active' : ''}`;
-        noteDiv.style.transform = `rotate(${Math.random() * 2 - 1}deg)`;
+        
+        // زاویه و حاشیه تصادفی برای نامرتب بودن و حس واقعی یخچال
+        const rotate = Math.random() * 4 - 2; 
+        const marginTop = Math.random() * 20;
+        noteDiv.style.transform = `rotate(${rotate}deg)`;
+        noteDiv.style.marginTop = `${marginTop}px`;
         noteDiv.dataset.noteIndex = noteIndex;
 
         let tasksHTML = note.tasks.map((task, taskIndex) => `
@@ -113,13 +160,13 @@ function renderAllNotes() {
         `).join('');
 
         noteDiv.innerHTML = `
-            <div class="magnetic-pen" draggable="true" title="Drag me to a task to scribble!">🖍️</div>
             <input type="text" class="note-title" value="${note.title}" placeholder="Note Title...">
             <ul class="task-list">${tasksHTML}</ul>
         `;
         fridgeContainer.appendChild(noteDiv);
     });
 }
+
 
 // اضافه کردن نوت جدید
 addNoteBtn.addEventListener('click', () => {
@@ -178,17 +225,50 @@ document.addEventListener('keydown', (e) => {
 });
 
 // --- منطق Drag and Drop برای مداد ---
-let draggedPenNoteIndex = null;
+// let draggedPenNoteIndex = null;
 
-fridgeContainer.addEventListener('dragstart', (e) => {
-    if (e.target.classList.contains('magnetic-pen')) {
-        draggedPenNoteIndex = parseInt(e.target.closest('.sticky-note').dataset.noteIndex);
-        e.dataTransfer.effectAllowed = 'move';
-    }
+// fridgeContainer.addEventListener('dragstart', (e) => {
+//     if (e.target.classList.contains('magnetic-pen')) {
+//         draggedPenNoteIndex = parseInt(e.target.closest('.sticky-note').dataset.noteIndex);
+//         e.dataTransfer.effectAllowed = 'move';
+//     }
+// });
+
+// fridgeContainer.addEventListener('dragover', (e) => {
+//     e.preventDefault(); // لازم برای اجازه drop
+//     const taskItem = e.target.closest('.task-item');
+//     if (taskItem) taskItem.classList.add('drag-over');
+// });
+
+// fridgeContainer.addEventListener('dragleave', (e) => {
+//     const taskItem = e.target.closest('.task-item');
+//     if (taskItem) taskItem.classList.remove('drag-over');
+// });
+
+// fridgeContainer.addEventListener('drop', (e) => {
+//     e.preventDefault();
+//     const taskItem = e.target.closest('.task-item');
+//     if (taskItem) {
+//         taskItem.classList.remove('drag-over');
+//         const noteIndex = parseInt(taskItem.closest('.sticky-note').dataset.noteIndex);
+//         const taskIndex = parseInt(taskItem.dataset.taskIndex);
+        
+//         // فقط اگر مداد مربوط به همان نوت باشد عمل کند (اختیاری)
+//         if (noteIndex === draggedPenNoteIndex) {
+//             notes[noteIndex].tasks[taskIndex].scribbled = !notes[noteIndex].tasks[taskIndex].scribbled;
+//             saveNotes(); renderAllNotes();
+//         }
+//     }
+// });
+
+const magneticPen = document.getElementById('magnetic-pen');
+
+magneticPen.addEventListener('dragstart', (e) => {
+    e.dataTransfer.effectAllowed = 'copyMove';
 });
 
 fridgeContainer.addEventListener('dragover', (e) => {
-    e.preventDefault(); // لازم برای اجازه drop
+    e.preventDefault();
     const taskItem = e.target.closest('.task-item');
     if (taskItem) taskItem.classList.add('drag-over');
 });
@@ -206,12 +286,22 @@ fridgeContainer.addEventListener('drop', (e) => {
         const noteIndex = parseInt(taskItem.closest('.sticky-note').dataset.noteIndex);
         const taskIndex = parseInt(taskItem.dataset.taskIndex);
         
-        // فقط اگر مداد مربوط به همان نوت باشد عمل کند (اختیاری)
-        if (noteIndex === draggedPenNoteIndex) {
-            notes[noteIndex].tasks[taskIndex].scribbled = !notes[noteIndex].tasks[taskIndex].scribbled;
-            saveNotes(); renderAllNotes();
+        let task = notes[noteIndex].tasks[taskIndex];
+        task.scribbled = !task.scribbled;
+        
+        // ثبت زمان خط‌خوردگی
+        if (task.scribbled) {
+            task.scribbledAt = Date.now();
+        } else {
+            delete task.scribbledAt; // اگر از حالت خط‌خورده در آمد
         }
+        
+        saveNotes(); renderAllNotes();
     }
 });
 
+setInterval(cleanupOldScribbles, 5 * 60 * 1000);
+
 loadNotes();
+
+
