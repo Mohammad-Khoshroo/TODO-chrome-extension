@@ -89,20 +89,18 @@ body {
 }
 
 
-.task-list { list-style: none; padding: 0; margin: 0; }
 
 .task-item { 
     /* font-size: 1.6em; یا هر سایزی که برای عنوان در نظر دارید */
     display: flex;
     align-items: center;
-     margin-bottom: 8px;
-      gap: 8px; padding: 4px;
-       transition: background 0.2s;
-    }
+    margin-bottom: 8px;
+    gap: 8px; padding: 4px;
+    transition: background 0.2s;
+}
 
 .task-item.drag-over { background: rgba(0,0,0,0.1); border-radius: 4px; }
 
-.task-input{ font-size: inherit; }
 .task-input, .note-title { 
     border: none; 
     background: transparent; 
@@ -111,19 +109,42 @@ body {
     outline: none; 
     resize: none; 
     overflow: hidden; 
-    line-height: 1.8; /* افزایش فاصله خطوط برای جلوگیری از بریده شدن بالای حروف */
-    padding: 5px 0; /* دادن فضای تنفس به متن */
     word-wrap: break-word;
+    box-sizing: border-box; 
 }
 
 .note-title {
-    font-size: 2.2em; /* یا هر سایزی که برای عنوان در نظر دارید */
+    font-size: 1.7em;
     font-weight: bold;
-    border-bottom: 1px dashed rgba(0,0,0,0.3);
-    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+    padding: 5px 0; 
+    line-height: 1.5;
 }
 
-.task-checkbox { cursor: pointer; }
+.task-input {
+    font-size: 1.6em; /* بزرگ کردن سایز فونت تسک‌ها */
+    line-height: 1.3; /* کاهش فاصله خطوط برای جلوگیری از ارتفاع کاذب */
+    padding: 2px 0 2px 8px; /* تنظیم پدینگ و ایجاد کمی فاصله از چک‌باکس */
+    margin: 0;
+}
+
+.task-list { list-style: none; padding: 0; margin: 0; }
+ul.task-list li {
+    display: flex;
+    align-items: center; /* تراز کردن چک‌باکس با متن تسک */
+    padding: 4px 5px; /* کاهش پدینگ اطراف هر تسک برای کمتر شدن فاصله‌ها */
+    border-radius: 4px;
+    margin-bottom: 2px; /* فاصله بسیار کم بین هر آیتم */
+}
+
+/* بزرگ‌تر کردن چک‌باکس برای تناسب با فونت جدید (اختیاری) */
+.task-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    margin-top: 2px;
+}
 
 #magnetic-pen {
     position: fixed;
