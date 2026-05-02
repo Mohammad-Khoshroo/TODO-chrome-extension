@@ -145,13 +145,17 @@ function renderAllNotes() {
         const noteDiv = document.createElement('div');
         noteDiv.className = `sticky-note ${note.colorClass} ${activeNoteIndex === noteIndex ? 'active' : ''}`;
         
-        // زاویه و حاشیه تصادفی برای نامرتب بودن و حس واقعی یخچال
-        const rotate = Math.random() * 4 - 2; 
-        const marginTop = Math.random() * 20;
+        // نامرتب‌سازی طبیعی‌تر (چرخش بین 3- تا 3 درجه و جابجایی تصادفی)
+        const rotate = (Math.random() * 6) - 3; 
+        const marginTop = Math.random() * 15;
+        const marginLeft = (Math.random() * 10) - 5;
+        
         noteDiv.style.transform = `rotate(${rotate}deg)`;
         noteDiv.style.marginTop = `${marginTop}px`;
+        noteDiv.style.marginLeft = `${marginLeft}px`;
         noteDiv.dataset.noteIndex = noteIndex;
 
+        
         let tasksHTML = note.tasks.map((task, taskIndex) => `
             <li class="task-item ${task.scribbled ? 'scribbled' : ''}" data-task-index="${taskIndex}">
                 <input type="checkbox" class="task-checkbox" ${task.checked ? 'checked' : ''}>
