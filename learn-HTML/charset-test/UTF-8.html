@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Unicode Viewer</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #111;
+            color: #eee;
+            margin: 20px;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 5px;
+            width: 120px;
+        }
+
+        button {
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 6px;
+        }
+
+        .cell {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+            background: #1c1c1c;
+        }
+
+        .char {
+            font-size: 22px;
+        }
+
+        .code {
+            font-size: 11px;
+            color: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>🌍 Unicode Viewer (Full Range)</h2>
+
+    <div class="controls">
+        Start (hex): <input id="start" value="0000">
+        <button onclick="prevPage()">◀ Prev</button>
+        <button onclick="nextPage()">Next ▶</button>
+        <button onclick="go()">Go</button>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <script>
+
+        const MAX = 0x10FFFF;
+        const PAGE_SIZE = 256;
+        let currentStart = 0;
+
+        function isValidCodePoint(cp) {
+            // exclude surrogate range
+            return !(cp >= 0xD800 && cp <= 0xDFFF) && cp <= MAX;
+        }
+
+        function render(start) {
+            const grid = document.getElementById("grid");
+            grid.innerHTML = "";
+
+            currentStart = start;
+
+            for (let i = 0; i < PAGE_SIZE; i++) {
+                let cp = start + i;
+                if (!isValidCodePoint(cp)) continue;
+
+                let cell = document.createElement("div");
+                cell.className = "cell";
+
+                let char = "";
+                try {
+                    char = String.fromCodePoint(cp);
+                } catch {
+                    continue;
+                }
+
+                cell.innerHTML = `
+      <div class="char">${char}</div>
+      <div class="code">U+${cp.toString(16).toUpperCase().padStart(4, "0")}</div>
+      <div class="code">${cp}</div>
+    `;
+
+                grid.appendChild(cell);
+            }
+
+            document.getElementById("start").value =
+                start.toString(16).toUpperCase().padStart(4, "0");
+        }
+
+        function prevPage() {
+            let newStart = currentStart - PAGE_SIZE;
+            if (newStart < 0) newStart = 0;
+            render(newStart);
+        }
+
+        function nextPage() {
+            let newStart = currentStart + PAGE_SIZE;
+            if (newStart > MAX) return;
+            render(newStart);
+        }
+
+        function go() {
+            let val = document.getElementById("start").value;
+            let num = parseInt(val, 16);
+            if (!isNaN(num) && num >= 0 && num <= MAX) {
+                render(num);
+            }
+        }
+
+        render(0);
+
+    </script>
+
+    <!-- <style>
+        .char {
+            font-family:
+                "Segoe UI Emoji",
+                "Apple Color Emoji",
+                "Noto Color Emoji",
+                "Twemoji Mozilla",
+                sans-serif;
+        }
+    </style> -->
+</body>
+
+
+
+</html>
