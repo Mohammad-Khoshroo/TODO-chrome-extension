@@ -44,11 +44,15 @@
     <h4 dir="ltr" lang="en">soos?</h4>
     <h5 dir="ltr" lang="en">sooss?</h5>
     <h6 dir="ltr" lang="en">soosss?</h6>
-    
+
+    <div style="display: flex; justify-content: center;">
+  <div>این بخش در وسط افقی قرار می‌گیرد</div>
+</div>
+
     <p dir="ltr" lang="en">
         <small>soosssss?</small>
     </p>
-        
+
     <p>
         خب الان مثلا من همچین می کنم: <br>
         <strong>هوییییییییییی یرهههههههههههههههه<br>
@@ -89,7 +93,7 @@
     <p>
         برای پرینت گرفتن در پایتون از دستور <br>
         <span dir="ltr" lang="en">
-        <code>
+            <code>
             print(); <br>
             return x;
         </code>
@@ -125,7 +129,240 @@
     <p hidden>این پیام مخفی است</p>
 
 
-    </html>
+    <img src="images/me.jpg" alt="من قبل از بدبختی" width="600" title="برای تماس کلیک کنید">
+
+    <fieldset>
+        <legend>لیست کارهای من برای یادگیری وب</legend>
+
+        <ul>
+            <li>یادگیری HTML</li>
+            <li>یادگیری CSS</li>
+            <li>یادگیری جاوا اسکریپت</li>
+        </ul>
+
+        <ol type="i">
+            <li>یادگیری HTML</li>
+            <li>یادگیری CSS</li>
+            <li>یادگیری جاوا اسکریپت</li>
+            <li>یادگیری جاوا اسکریپت</li>
+            <li>یادگیری جاوا اسکریپت</li>
+            <li>یادگیری جاوا اسکریپت</li>
+            <li>یادگیری جاوا اسکریپت</li>
+            <li>یادگیری جاوا اسکریپت</li>
+        </ol>
+
+        <dl>
+            <dt>HTML</dt>
+            <dd>زبان نشانه‌گذاری برای ساخت اسکلت صفحات وب.</dd>
+
+            <dt>CSS</dt>
+            <dd>زبانی برای استایل‌دهی و زیباسازی صفحات وب.</dd>
+        </dl>
+
+    </fieldset>
+    <br>
+    <table border="3">
+        <tr>
+            <th>نام</th>
+            <th>سن</th>
+            <th>شغل</th>
+        </tr>
+        <tr>
+            <td>علی</td>
+            <td>۲۸</td>
+            <td>برنامه‌نویس</td>
+        </tr>
+        <tr>
+            <td>سارا</td>
+            <td>۲۴</td>
+            <td>طراح گرافیک</td>
+        </tr>
+    </table>
+
+
+    <table border="1">
+        <caption>گزارش فروش ماهانه</caption>
+
+        <thead>
+            <tr>
+                <th>محصول</th>
+                <th>تعداد فروش</th>
+                <th>قیمت واحد</th>
+            </tr>
+        </thead>
+
+        <br>
+
+        <tbody>
+            <tr>
+                <td>لپ‌تاپ</td>
+                <td>۵</td>
+                <td>۴۰,۰۰۰,۰۰۰</td>
+            </tr>
+            <tr>
+                <td>موس</td>
+                <td>۲۰</td>
+                <td>۵۰۰,۰۰۰</td>
+            </tr>
+
+            <tr>
+                <!-- این سلول به اندازه 2 ستون جا می‌گیرد -->
+                <td colspan="2">جمع کل فروش:</td>
+                <td>۲۱۰,۰۰۰,۰۰۰</td>
+            </tr>
+        </tbody>
+    </table>
+
+
+    <form action="http://localhost:8080/submit-data" method="POST" target="_blank" enctype="multipart/form-data"
+        autocomplete="off">
+
+        <fieldset>
+            <legend>اطلاعات شخصی</legend>
+            <!-- محتویات فرم اینجا قرار می‌گیرد -->
+
+            <!-- کادر متنی با لیبل متصل -->
+            <label for="fname">نام:</label>
+            <input type="text" id="fname" name="firstname" placeholder="مثال: علی" required>
+            <br>
+
+            <!-- کادر رمز عبور -->
+            <label for="pass">رمز عبور:</label>
+            <input type="password" id="pass" name="password" required>
+            <br>
+
+            <!-- دکمه‌های رادیویی (نام مشترک باعث می‌شود فقط یکی انتخاب شود) -->
+            <p>جنسیت:</p>
+            <input type="radio" id="male" name="gender" value="male">
+            <label for="male">مرد</label>
+            <input type="radio" id="female" name="gender" value="female">
+            <label for="female">زن</label>
+            <br>
+
+            <!-- منوی کشویی -->
+            <label for="city">شهر:</label>
+            <select id="city" name="city">
+                <option value="tehran">تهران</option>
+                <option value="shiraz">شیراز</option>
+                <option value="isfahan">اصفهان</option>
+            </select>
+            <br>
+
+            <!-- کادر پیام چند خطی -->
+            <label for="msg">پیام شما:</label><br>
+            <textarea id="msg" name="message" rows="4" cols="30"></textarea>
+            <br><br>
+
+            <input type="datetime-local" name="appointment" required>
+            <br><br>
+
+            <input type="date" name="appointment" required>
+            <br><br>
+
+            <input type="color" name="appointment" required>
+            <br><br>
+
+
+            <input type="range" name="range" required>
+            <br><br>
+
+            <!-- دکمه ارسال -->
+            <button type="submit">ثبت‌نام</button>
+
+        </fieldset>
+    </form>
+
+    <form action="/submit-data" method="POST">
+
+        <!-- 1. Date (تاریخ) -->
+        <label for="bday">تاریخ تولد:</label>
+        <input type="date" id="bday" name="birthday">
+        <br><br>
+
+        <!-- 2. Color (رنگ) -->
+        <label for="favcolor">رنگ مورد علاقه:</label>
+        <input type="color" id="favcolor" name="favorite_color" value="#ff0000">
+        <br><br>
+
+        <!-- 3. Number (عدد) - همراه با تعیین حداقل و حداکثر -->
+        <label for="quantity">تعداد (بین ۱ تا ۵):</label>
+        <input type="number" id="quantity" name="quantity" min="1" max="5" step="0.1">
+        <br><br>
+
+        <!-- 4. Range (لغزان) - همراه با تعیین حداقل و حداکثر -->
+        <label for="vol">میزان صدا:</label>
+        <input type="range" id="vol" name="volume" min="0" max="100" value="50" oninput="out.value = vol.value">
+        <output id="out">50</output>
+        <br><br>
+
+        <label for="browsers">مرورگر مورد علاقه:</label>
+        <input list="browsers" name="browser" disabled>
+        <datalist id="browsers">
+            <option value="Chrome">
+            <option value="Firefox">
+            <option value="Safari">
+        </datalist>
+
+        <button type="submit">ارسال اطلاعات</button>
+
+
+    </form>
+
+    <form>
+        <label for="cars">ماشین مورد نظر خود را انتخاب کنید:</label>
+        <select id="cars" name="car_brand">
+
+            <!-- گروه اول -->
+            <optgroup label="ماشین‌های آلمانی">
+                <option value="benz">مرسدس بنز</option>
+                <option value="bmw">بی‌ام‌و</option>
+                <option value="audi">آئودی</option>
+            </optgroup>
+
+            <!-- گروه دوم -->
+            <optgroup label="ماشین‌های ژاپنی">
+                <option value="toyota">تویوتا</option>
+                <option value="honda">هوندا</option>
+                <option value="mazda">مزدا</option>
+            </optgroup>
+
+        </select>
+        <br><br>
+        <button type="submit">ارسال</button>
+    </form>
+
+    <video width="500" controls muted autoplay>
+        <source src="my-video.mp4" type="video/mp4">
+        مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+    </video>
+
+    <audio controls>
+        <source src="18 - Ballin - Logic & Castro.mp3" type="audio/mpeg">
+        مرورگر شما از پخش این فایل صوتی پشتیبانی نمی‌کند.
+    </audio>
+
+
+    <dialog open>
+  <h2>خوش آمدید!</h2>
+  <p>این یک پیام پاپ‌آپ است.</p>
+  <button>بستن</button>
+</dialog>
+
+    <details>
+  <summary>آیا HTML یک زبان برنامه‌نویسی است؟</summary>
+  <p>خیر، HTML یک زبان نشانه‌گذاری برای ساختاردهی به صفحات وب است.</p>
+</details>
+
+    <br><br>
+
+
+    <!-- <iframe src="https://www.google.com/search?q=%D8%A2%D9%86%D8%AA%D9%86&oq=%D8%A2&gs_lcrp=EgZjaHJvbWUqDggAEEUYJxg7GIAEGIoFMg4IABBFGCcYOxiABBiKBTIGCAEQRRg5MhIIAhAuGCcYrwEYxwEYgAQYigUyBwgDEAAYgAQyBwgEEAAYgAQyBwgFEAAYgAQyBwgGEAAYgAQyBwgHEAAYgAQyBwgIEAAYgATSAQc5NTNqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8" width="100%" height="400" title="آنتن"></iframe> -->
+<button data-user-id="1054" data-role="admin">حذف کاربر</button>
+در این مثال، مقادیر `1054` و `admin` در مرورگر کاربر نمایش داده نمی‌شوند، اما برنامه‌نویس می‌تواند از آن‌ها استفاده کند.
+
+***
+
+تبریک! آموزش مفاهیم کاربردی HTML به پایان رسید. حالا اسکلت‌بندی سایت را بلدید و می‌توانید یادگیری **CSS** را برای زیباسازی، رنگ‌آمیزی و چیدمان این اسکلت شروع کنید. اگر آماده‌اید، بفرمایید تا وارد CSS شویم!
 
 </body>
 
