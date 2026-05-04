@@ -1,8 +1,14 @@
 {
     "manifest_version": 3,
     "name": "Fridge Sticky Notes",
-    "version": "1.0",
+    "version": "1.7",
     "description": "colorfull notes",
+    "icons": {
+        "16": "images/stick-note.ico",
+        "32": "images/stick-note.ico",
+        "48": "images/stick-note.ico",
+        "128": "images/stick-note.ico"
+    },
     "chrome_url_overrides": {
         "newtab": "index.html"
     },

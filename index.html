@@ -5,16 +5,26 @@
     <meta charset="UTF-8">
     <title>TODO</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="images/stick-note.ico?v=0" type="image/x-icon">
 </head>
 
 <body>
-    <div id="trash-bin">🗑️</div>
-    <div id="magnetic-eraser" draggable="true" title="Drag over task to delete instantly">🧽</div>
-    <div id="magnetic-pen" class="magnetic-pen" draggable="true" title="Drag to scribble!">🖍️</div>
+
+    <div id="trash-bin">
+        <img id="trash" src="images/trash-bin.ico" alt="trash-bin" width="70" height="70">
+    </div>
+    <div id="eraser" draggable="true" title="Drag over task to delete instantly">
+        <img src="images/eraser.ico" alt="eraser" width="45" height="45">
+    </div>
+    <div id="pencil" class="pencil" draggable="true" title="Drag to scribble!">
+        <img src="images/pencil.ico" alt="pencil" width="45" height="45">
+    </div>
     <button id="add-note-btn">Add Note +</button>
 
     <div id="fridge-container"></div>
+
     <script src="script.js"></script>
+
 </body>
 
 </html>
