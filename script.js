@@ -27,7 +27,6 @@ function saveNotes() {
 }
 
 
-
 // ----------------------
 //     MAIN VARIABLES
 // ----------------------
@@ -44,7 +43,6 @@ const DELETE_HOURS = 2;
 const DELETE_THRESHOLD_MS = DELETE_HOURS * 60 * 60 * 1000;
 
 const getRandomColorClass = () => `color-${Math.floor(Math.random() * 4)}`;
-
 
 
 // ----------------------
@@ -81,7 +79,6 @@ function cleanupTrash() {
 
     saveNotes();
     updateTrashIcon();
-
 }
 
 const trashIcon = document.getElementById("trash");
@@ -113,12 +110,12 @@ function renderAllNotes() {
     notes.forEach((note, noteIndex) => {
         if (note.deletedAt) return;
 
-        // ایجاد یک نگهدارنده کلی برای کاغذها تا در ستون‌ها از هم جدا نشوند
+        // Create a main wrapper for notes so they remain grouped together
         const wrapper = document.createElement('div');
         wrapper.className = 'note-wrapper';
         wrapper.setAttribute('draggable', 'true');
 
-        // اعمال چرخش و حاشیه‌های تصادفی به کل گروه
+        // Apply random rotation and margins to the entire group
         wrapper.style.transform = `rotate(${(Math.random() * 6) - 3}deg)`;
         wrapper.style.marginTop = `${Math.random() * 15 + 40}px`;
         wrapper.style.marginLeft = `${(Math.random() * 10) - 5}px`;
@@ -132,7 +129,8 @@ function renderAllNotes() {
         let pageIndex = 0;
 
         let currentSign = Math.random() > 0.5 ? 1 : -1;
-        // تقسیم تسک‌ها به صفحات مختلف
+
+        // Split tasks into different pages
         do {
             const tasksLimit = pageIndex === 0 ? 4 : 5;
             const pageTasks = note.tasks.slice(taskOffset, taskOffset + tasksLimit);
@@ -140,34 +138,29 @@ function renderAllNotes() {
             const noteDiv = document.createElement('div');
             let rotationAngle;
 
-            // احتمال ۵ درصد برای اینکه زاویه دقیقا صفر باشد
+            // 5% chance for the angle to be exactly zero
             if (Math.random() < 0.05) {
                 rotationAngle = 0;
             } else {
-                // تولید یک زاویه تصادفی بین ۱ تا ۳ درجه
+                // Generate a random angle between 1 and 3 degrees
                 let randomMagnitude = Math.random() * 2 + 1;
 
-                // اعمال علامت (مثبت یا منفی) به زاویه
+                // Apply sign (positive or negative) to the angle
                 rotationAngle = randomMagnitude * currentSign;
             }
 
-            // اعمال چرخش به صفحه
+            // Apply rotation to the page
             noteDiv.style.transform = `rotate(${rotationAngle}deg)`;
 
-            // معکوس کردن علامت برای صفحه بعدی (اگر این صفحه مثبت بود، بعدی منفی شود و بالعکس)
+            // Reverse the sign for the next page
             if (rotationAngle !== 0) {
                 currentSign *= -1;
             }
-            // const randomRotate = (Math.random() - 0.5) * 4; // چرخش تصادفی کم
-            // noteDiv.style.transform = `rotate(${randomRotate}deg)`;
 
             noteDiv.className = `sticky-note ${note.colorClass} ${activeNoteIndex === noteIndex ? 'active' : ''}`;
             noteDiv.dataset.noteIndex = noteIndex;
 
-            // noteDiv.style.position = 'relative'; // برای اعمال شدن z-index الزامی است
-            // noteDiv.style.zIndex = 100 - pageIndex;
-
-            // ساخت HTML تسک‌ها با ایندکس واقعی
+            // Build tasks HTML with absolute index
             let tasksHTML = pageTasks.map((task, tIndex) => {
                 const absoluteIndex = taskOffset + tIndex;
                 return `
@@ -183,7 +176,7 @@ function renderAllNotes() {
                 innerHTML += `<div class="tape"></div>`;
                 innerHTML += `<input type="text" class="note-title" value="${note.title}" placeholder="Note Title. . .">`;
             } else {
-                // چسب برای اتصال کاغذهای بعدی به قبلی
+                // Tape to connect subsequent pages to the previous one
                 innerHTML += `<div class="tape link-tape"></div>`;
                 noteDiv.classList.add('chained-note');
             }
@@ -195,7 +188,7 @@ function renderAllNotes() {
 
             taskOffset += pageTasks.length;
             pageIndex++;
-        } while (taskOffset < note.tasks.length); // اگر تسکی نبود هم حداقل یک برگه ساخته می‌شود چون do-while است
+        } while (taskOffset < note.tasks.length);
 
         fridgeContainer.appendChild(wrapper);
     });
@@ -203,7 +196,6 @@ function renderAllNotes() {
     autoResizeTextareas();
     updateTrashIcon();
 }
-
 
 
 // ----------------------
@@ -222,7 +214,6 @@ addNoteBtn.addEventListener('click', () => {
     saveNotes();
     renderAllNotes();
 });
-
 
 fridgeContainer.addEventListener('change', (e) => {
     const noteEl = e.target.closest('.sticky-note');
@@ -247,12 +238,10 @@ fridgeContainer.addEventListener('change', (e) => {
     saveNotes();
 });
 
-
 document.addEventListener("mousedown", (e) => {
-
     const noteEl = e.target.closest(".sticky-note");
 
-    // click on note
+    // Click on note
     if (noteEl) {
         const newIndex = +noteEl.dataset.noteIndex;
 
@@ -263,7 +252,7 @@ document.addEventListener("mousedown", (e) => {
         return;
     }
 
-    // ignore UI tools
+    // Ignore UI tools
     if (
         e.target.closest("#add-note-btn") ||
         e.target.closest("#trash-bin") ||
@@ -273,7 +262,7 @@ document.addEventListener("mousedown", (e) => {
         return;
     }
 
-    // remove focus from inputs
+    // Remove focus from inputs
     if (
         document.activeElement instanceof HTMLInputElement ||
         document.activeElement instanceof HTMLTextAreaElement
@@ -281,12 +270,11 @@ document.addEventListener("mousedown", (e) => {
         document.activeElement.blur();
     }
 
-    // deselect note
+    // Deselect note
     if (activeNoteIndex !== null) {
         activeNoteIndex = null;
         renderAllNotes();
     }
-
 });
 
 
@@ -298,7 +286,7 @@ document.addEventListener("keydown", e => {
         renderAllNotes();
 
         setTimeout(() => {
-            // پیدا کردن تمام اینپوت‌های تسک این نوت و فوکوس روی آخرین مورد
+            // Find all task inputs of the active note and focus on the last one
             const inputs = document.querySelectorAll(`.note-wrapper .sticky-note[data-note-index="${activeNoteIndex}"] .task-input`);
             if (inputs.length > 0) inputs[inputs.length - 1].focus();
         }, 30);
@@ -316,7 +304,6 @@ magneticPen.addEventListener("dragstart", (e) => {
 eraser.addEventListener("dragstart", (e) => {
     e.dataTransfer.setData("type", "eraser");
 });
-
 
 fridgeContainer.addEventListener("dragover", (e) => {
     e.preventDefault();
@@ -394,6 +381,9 @@ loadNotes((loaded) => {
 
 
 //////////////////////////////////////////////////////////////////
+// ----------------------
+//       CALENDAR
+// ----------------------
 
 const monthNames = [
     "فروردین", "اردیبهشت", "خرداد",
@@ -415,35 +405,35 @@ function renderCalendar(jy, jm) {
     daysContainer.innerHTML = '';
     monthYearDisplay.textContent = `${monthNames[jm - 1]} ${jy}`;
 
-    // تبدیل روز اول ماه شمسی به میلادی برای پیدا کردن روز هفته
+    // Convert the first day of Jalali month to Gregorian to find the weekday
     const firstDayGregorian = jalaali.toGregorian(jy, jm, 1);
     const dateObj = new Date(firstDayGregorian.gy, firstDayGregorian.gm - 1, firstDayGregorian.gd);
 
-    // تنظیم روز هفته (شنبه = 0، جمعه = 6)
+    // Setup weekday indices (Saturday = 0, Friday = 6)
     let firstDayOfWeek = dateObj.getDay() + 1;
     if (firstDayOfWeek === 7) firstDayOfWeek = 0;
 
     const monthLength = jalaali.jalaaliMonthLength(jy, jm);
 
-    // سلول‌های خالی قبل از شروع ماه
+    // Empty cells before the 1st of the month
     for (let i = 0; i < firstDayOfWeek; i++) {
         const emptyDiv = document.createElement('div');
         emptyDiv.classList.add('day', 'empty');
         daysContainer.appendChild(emptyDiv);
     }
 
-    // روزهای ماه
+    // Days of the month
     for (let i = 1; i <= monthLength; i++) {
         const dayDiv = document.createElement('div');
         dayDiv.classList.add('day');
         dayDiv.textContent = i;
 
-        // مشخص کردن جمعه‌ها
+        // Highlight Fridays
         if ((firstDayOfWeek + i - 1) % 7 === 6) {
             dayDiv.classList.add('friday');
         }
 
-        // مشخص کردن روز فعلی
+        // Highlight current day
         if (jy === todayJalali.jy && jm === todayJalali.jm && i === todayJalali.jd) {
             dayDiv.classList.add('today');
         }
@@ -470,45 +460,24 @@ document.getElementById('nextBtn').addEventListener('click', () => {
     renderCalendar(currentJy, currentJm);
 });
 
+// --- Calendar Toggle Section ---
+
 const toggleBtn = document.getElementById('toggleCalendarBtn');
 const calendar = document.getElementById('myCalendar');
 
-toggleBtn.addEventListener('click', function() {
-    // تغییر وضعیت کلاس ها
-    calendar.classList.toggle('minimized');
-    document.body.classList.toggle('calendar-closed');
-    
-    // تغییر متن دکمه
-    if (calendar.classList.contains('minimized')) {
-        toggleBtn.innerText = '+ نمایش تقویم';
-    } else {
-        toggleBtn.innerText = '− بستن تقویم';
-    }
-});
+// Single event listener for toggling the calendar
+if (toggleBtn && calendar) {
+    toggleBtn.addEventListener('click', function () {
+        calendar.classList.toggle('minimized');
+        document.body.classList.toggle('calendar-closed');
 
-document.addEventListener("DOMContentLoaded", function() {
-    // پیدا کردن دکمه و خود تقویم
-    const toggleBtn = document.getElementById("toggleCalendarBtn");
-    const calendar = document.getElementById("myCalendar");
+        if (calendar.classList.contains('minimized')) {
+            toggleBtn.innerText = '+ نمایش تقویم';
+        } else {
+            toggleBtn.innerText = '− بستن تقویم';
+        }
+    });
+}
 
-    // اگر هر دو در HTML پیدا شدند، دستورات کلیک را اضافه کن
-    if (toggleBtn && calendar) {
-        toggleBtn.addEventListener("click", function() {
-            // اضافه یا حذف کردن کلاس‌ها
-            calendar.classList.toggle("minimized");
-            document.body.classList.toggle("calendar-closed");
-
-            // تغییر متن دکمه بر اساس وضعیت تقویم
-            if (calendar.classList.contains("minimized")) {
-                toggleBtn.innerText = "+ باز کردن تقویم";
-            } else {
-                toggleBtn.innerText = "− بستن تقویم";
-            }
-        });
-    } else {
-        console.log("دکمه toggleCalendarBtn یا تقویم myCalendar در HTML یافت نشد.");
-    }
-});
-
-// رندر اولیه
+// Initial calendar render
 renderCalendar(currentJy, currentJm);

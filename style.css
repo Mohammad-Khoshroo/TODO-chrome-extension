@@ -6,7 +6,7 @@
 @font-face {
     font-family: 'MyCustomPersianFont';
     src: url('fonts/Ziba.ttf') format('truetype');
-    /* اصلاح فرمت فونت ttf */
+    /* Fixed ttf font format */
 }
 
 body {
@@ -23,6 +23,7 @@ body {
     min-height: 100vh;
     background-size: cover;
     background-attachment: fixed;
+    transition: padding-right 0.3s ease;
 }
 
 #add-note-btn {
@@ -39,9 +40,9 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     user-select: none;
-    /* جلوگیری از انتخاب شدن متن */
+    /* Prevent text selection */
     -webkit-user-select: none;
-    /* پشتیبانی برای سافاری و نسخه‌های قدیمی‌تر کروم/اج */
+    /* Support for Safari and older versions of Chrome/Edge */
 }
 
 #fridge-container {
@@ -51,6 +52,7 @@ body {
     padding: 20px;
     padding-bottom: 100px;
     overflow: visible;
+    user-select: none;
 }
 
 
@@ -65,22 +67,18 @@ body {
     position: relative;
     display: flex;
     flex-direction: column;
-    /* رنگ از طریق کلاس‌ها و متغیرها اعمال می‌شود */
+    /* Color applied via classes and variables */
     box-shadow: 0px 10px 15px -5px rgba(0, 0, 0, 0.3);
     border-radius: 0px 0px 15px 5px / 0px 0px 5px 15px;
     transition: all 0.2s;
     background-image: none;
-    break-inside: avoid;
-    page-break-inside: avoid;
     -webkit-column-break-inside: avoid;
-    /* این مورد را برای مرورگرهای وب‌کیت اضافه کنید */
+    /* Add this for webkit browsers */
 
     display: inline-flex;
-    /* به جای flex از inline-flex استفاده کنید */
+    /* Use inline-flex instead of flex */
     transform: translateZ(0);
-    /* این ویژگی یک لایه جدید می‌سازد و از برش خوردن چسب جلوگیری می‌کند */
-
-
+    /* This creates a new layer and prevents the tape from being clipped */
 }
 
 .sticky-note.active {
@@ -106,9 +104,7 @@ body {
 }
 
 
-
 .task-item {
-    /* font-size: 1.6em; یا هر سایزی که برای عنوان در نظر دارید */
     display: flex;
     align-items: center;
     margin-bottom: 8px;
@@ -146,11 +142,11 @@ body {
 
 .task-input {
     font-size: 1.6em;
-    /* بزرگ کردن سایز فونت تسک‌ها */
+    /* Increase task font size */
     line-height: 1.3;
-    /* کاهش فاصله خطوط برای جلوگیری از ارتفاع کاذب */
+    /* Decrease line height to prevent false height */
     padding: 2px 0 2px 8px;
-    /* تنظیم پدینگ و ایجاد کمی فاصله از چک‌باکس */
+    /* Adjust padding and create slight distance from checkbox */
     margin: 0;
 }
 
@@ -163,12 +159,12 @@ body {
 ul.task-list li {
     display: flex;
     align-items: center;
-    /* تراز کردن چک‌باکس با متن تسک */
+    /* Align checkbox with task text */
     padding: 4px 5px;
-    /* کاهش پدینگ اطراف هر تسک برای کمتر شدن فاصله‌ها */
+    /* Reduce padding around each task to lessen gaps */
     border-radius: 4px;
     margin-bottom: 2px;
-    /* فاصله بسیار کم بین هر آیتم */
+    /* Very small gap between each item */
 }
 
 
@@ -182,11 +178,9 @@ ul.task-list li {
     z-index: 1000;
     filter: drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.4));
     transition: transform 0.2s;
-    user-select: none;
-    /* جلوگیری از انتخاب شدن متن */
+    /* Prevent text selection */
     -webkit-user-select: none;
-    /* پشتیبانی برای سافاری و نسخه‌های قدیمی‌تر کروم/اج */
-
+    /* Support for Safari and older versions of Chrome/Edge */
 }
 
 #pencil:active {
@@ -202,7 +196,7 @@ ul.task-list li {
     opacity: 0.6;
 }
 
-/* اصلاح کلاس‌های رنگ برای شناسایی شدن در افکت برگه‌های متعدد */
+/* Fix color classes to be recognized in the multi-page effect */
 .color-0 {
     --note-color: #f9e426;
     background-color: var(--note-color);
@@ -227,23 +221,21 @@ ul.task-list li {
     position: fixed;
     bottom: 20px;
     left: 20px;
-    /* انتقال به چپ برای جلوگیری از تداخل با دکمه اضافه کردن نوت */
+    /* Move to left to prevent overlap with add note button */
     font-size: 40px;
     opacity: 0.8;
     transition: opacity 0.2s, transform 0.2s;
     z-index: 1000;
     cursor: pointer;
     user-select: none;
-    /* جلوگیری از انتخاب شدن متن */
+    /* Prevent text selection */
     -webkit-user-select: none;
-    /* پشتیبانی برای سافاری و نسخه‌های قدیمی‌تر کروم/اج */
-
+    /* Support for Safari and older versions of Chrome/Edge */
 }
 
 #trash-bin.drag-over {
     opacity: 1;
     transform: scale(1.2);
-
 }
 
 #trash-bin:active {
@@ -252,25 +244,11 @@ ul.task-list li {
 }
 
 @keyframes shake {
-    0% {
-        transform: rotate(-6deg);
-    }
-
-    25% {
-        transform: rotate(6deg);
-    }
-
-    50% {
-        transform: rotate(-6deg);
-    }
-
-    75% {
-        transform: rotate(6deg);
-    }
-
-    100% {
-        transform: rotate(0deg);
-    }
+    0% { transform: rotate(-6deg); }
+    25% { transform: rotate(6deg); }
+    50% { transform: rotate(-6deg); }
+    75% { transform: rotate(6deg); }
+    100% { transform: rotate(0deg); }
 }
 
 #eraser {
@@ -283,10 +261,9 @@ ul.task-list li {
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
     transition: transform 0.2s;
     user-select: none;
-    /* جلوگیری از انتخاب شدن متن */
+    /* Prevent text selection */
     -webkit-user-select: none;
-    /* پشتیبانی برای سافاری و نسخه‌های قدیمی‌تر کروم/اج */
-
+    /* Support for Safari and older versions of Chrome/Edge */
 }
 
 #eraser:active {
@@ -294,9 +271,6 @@ ul.task-list li {
     transform: scale(0.9) rotate(-10deg);
 }
 
-#fridge-container {
-    user-select: none;
-}
 
 textarea {
     user-select: text;
@@ -307,31 +281,31 @@ textarea {
     width: 100px;
     height: 30px;
     left: 50%;
-    /* برای اینکه چسب کاملا داخل کادر باشد و در ستون‌ها برش نخورد (طبق راه حل قبل) */
+    /* Keep tape completely inside the frame to avoid cutting in columns (based on previous fix) */
     top: -20px;
 
-    /* چرخش جزئی برای طبیعی‌تر شدن */
+    /* Slight rotation for a more natural look */
     transform: translateX(-50%) rotate(-2deg);
 
-    /* ظاهر چسب نواری: نیمه‌شفاف با افکت شیشه‌ای */
+    /* Masking tape look: semi-transparent with a glassy effect */
     background-color: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(2px);
-    /* این خط به چسب حالت مات می‌دهد */
+    /* This line gives the tape a matte finish */
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
-    /* ایجاد لبه‌های دندانه‌دار و نامنظم در سمت چپ و راست */
+    /* Create jagged and irregular edges on the left and right */
     clip-path: polygon(0% 5%, 4% 15%, 0% 25%, 5% 40%, 0% 55%, 6% 70%, 1% 85%, 5% 100%,
-            /* لبه چپ */
+            /* Left edge */
             95% 100%, 100% 85%, 94% 70%, 100% 55%, 95% 40%, 100% 25%, 96% 15%, 100% 5%,
-            /* لبه راست */
+            /* Right edge */
             95% 0%, 5% 0%
-            /* لبه بالا */
+            /* Top edge */
         );
 
     z-index: 10;
 }
 
-/* بافت چسب */
+/* Tape texture */
 .tape::before {
     content: "";
     position: absolute;
@@ -345,7 +319,7 @@ textarea {
 }
 
 
-/* تنظیمات نگهدارنده کاغذهای متصل به هم */
+/* Settings for the wrapper of connected papers */
 .note-wrapper {
     break-inside: avoid;
     page-break-inside: avoid;
@@ -361,74 +335,64 @@ textarea {
     cursor: grabbing;
 }
 
-/* حفظ ظاهر اصلی و سایز ثابت هر کاغذ */
-/* حفظ ظاهر اصلی و سایز ثابت هر کاغذ */
+/* Maintain the original appearance and fixed size of each paper */
 .note-wrapper .sticky-note {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     position: relative;
-    /* برگرداندن انحنای گوشه‌ها برای حس برآمدگی */
+    /* Restore corner curves for a bulging feel */
     border-radius: 0px 0px 15px 5px / 0px 0px 5px 15px !important;
-    /* برگرداندن سایه سه‌بعدی اصلی */
+    /* Restore original 3D shadow */
     box-shadow: 0px 10px 15px -5px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* تنظیم کاغذهای دوم به بعد تا کمی بروند زیر کاغذ بالایی */
+/* Adjust secondary papers to go slightly under the top paper */
 .note-wrapper .sticky-note.chained-note {
     margin-top: -20px !important;
-    /* میزان رفتن زیر کاغذ بالایی */
+    /* Amount to go under the top paper */
 }
 
-/* تنظیم چسب اتصال */
+/* Adjust connecting tape */
 .tape.link-tape {
     top: -10px;
-    /* تنظیم محل قرارگیری چسب روی لبه دو کاغذ */
+    /* Adjust placement of the tape on the edge of two papers */
     z-index: 10;
 }
 
-/* استفاده از box-shadow برای حالت فوکوس/انتخاب */
+/* Use box-shadow for focus/selection state */
 .note-wrapper .sticky-note:focus-within,
 .sticky-note:focus-within,
 .sticky-note.selected,
 .note-wrapper.selected .sticky-note {
-    /* سایه اول برای حالت انتخاب (آبی) و سایه دوم همون سایه عمق‌دار قبلیه */
+    /* First shadow for selection state (blue) and second is the previous depth shadow */
     box-shadow: 0 0 0 3px #4a90e2, 2px 2px 10px rgba(0, 0, 0, 0.2) !important;
 }
 
 
 
 /* /////////////////////////////////// */
-
-.today {
-    border: 2px solid #007bff;
-    background-color: #e6f2ff;
-    font-weight: bold;
-}
+/*               CALENDAR              */
+/* /////////////////////////////////// */
 
 .calendar {
     direction: rtl;
     position: fixed;
-    /* ثابت کردن روی صفحه */
+    /* Fix to screen */
     top: 30px;
-    /* فاصله از بالا */
+    /* Distance from top */
     right: 30px;
-    /* فاصله از راست */
+    /* Distance from right */
     z-index: 900;
-    /* قرار گرفتن روی سایر عناصر */
-
+    /* Place above other elements */
     background-color: #ffffff;
     width: 320px;
     border-radius: 15px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     font-family: 'Vazirmatn', Tahoma, sans-serif;
-}
-
-/* اگر می‌خواهید در صفحه‌های کوچک (موبایل) تقویم مخفی شود تا فضا اشغال نکند: */
-@media (max-width: 768px) {
-    .calendar {
-        display: none;
-    }
+    
+    /* Hidden by default on mobile/small screens */
+    display: none; 
 }
 
 
@@ -495,6 +459,12 @@ textarea {
     cursor: default;
 }
 
+.today {
+    border: 2px solid #007bff;
+    background-color: #e6f2ff;
+    font-weight: bold;
+}
+
 .day.today {
     background-color: #4f46e5;
     color: white;
@@ -510,19 +480,7 @@ textarea {
     color: #ffffff;
 }
 
-/* ایجاد فاصله از سمت راست برای جلوگیری از رفتن یادداشت ها به زیر تقویم */
-body {
-    padding-right: 350px;
-    /* عرض تقویم + کمی فاصله */
-    transition: padding-right 0.3s ease;
-}
-
-/* وقتی تقویم بسته است، فاصله یادداشت ها به حالت عادی برگردد */
-body.calendar-closed {
-    padding-right: 20px;
-}
-
-/* استایل دکمه کوچک سازی (Minimize) */
+/* Minimize button style */
 .toggle-calendar-btn {
     width: 100%;
     background-color: #f3f4f6;
@@ -540,22 +498,80 @@ body.calendar-closed {
     background-color: #e2e8f0;
 }
 
-/* حالت کوچک شده تقویم */
+/* Minimized calendar state */
 .calendar.minimized {
-    height: 55px !important;
-    /* ارتفاع را تا حدی کم می‌کند که فقط دکمه دیده شود */
+    height: 38px !important; /* Reduces height enough to only see the button */
     overflow: hidden !important;
 }
 
-/* برای محو کردن سایر بخش‌های داخل تقویم در حالت بسته */
+/* Hide other parts inside calendar when minimized */
 .calendar.minimized .header,
 .calendar.minimized .weekdays,
 .calendar.minimized .days {
     display: none !important;
 }
 
-/* تنظیم فضای خالی سمت راست صفحه (body) وقتی تقویم بسته است */
-body.calendar-closed {
-    padding-right: 20px !important;
-    /* فضای اشغال شده آزاد می‌شود */
+
+/* ======================================================== */
+/*  RESPONSIVE CALENDAR LOGIC (DESKTOP / MAXIMIZED VIEW)    */
+/* ======================================================== */
+
+@media screen and (min-width: 768px) {
+    /* Show calendar on larger screens */
+    .calendar {
+        display: block;
+    }
+
+    /* Create space on the right for notes so they don't go under the calendar */
+    body {
+        padding-right: 350px !important; /* Calendar width + some gap */
+    }
+
+    /* Reset space if calendar is closed/minimized by the user */
+    body.calendar-closed {
+        padding-right: 30px !important;
+        padding-top: 45px !important;
+    }
 }
+
+/* ======================================================== */
+/*  CALENDAR LOGIC (شناور در حالت عادی، ثابت در Maximize)   */
+/* ======================================================== */
+
+/* تنظیمات تقویم برای حالت عادی (غیر Maximize) */
+.calendar {
+    position: fixed !important;
+    top: 20px;
+    right: 20px;
+    z-index: 9999; /* قرار گرفتن روی نوت‌ها */
+    /* نمایش و مخفی شدن آن توسط دکمه شما هندل می‌شود */
+}
+
+/* در حالت عادی بدنه پدینگ اضافی ندارد */
+body {
+    padding-right: 30px !important; /* یا هر مقدار پیش‌فرض خودتان */
+}
+
+/* ======================================================== */
+/*  فقط وقتی پنجره Maximize است                             */
+/* ======================================================== */
+
+/* وقتی Maximize شد، نوت‌ها رو هل بده سمت چپ */
+body.is-maximized {
+    padding-right: 350px !important; /* ایجاد فضا برای تقویم */
+}
+
+/* اگر در حالت Maximize تقویم رو بستیم، پدینگ برگرده به حالت عادی */
+body.is-maximized.calendar-closed {
+    padding-right: 30px !important;
+}
+
+/* تنظیمات تقویم در حالت Maximize (اگر لازم است استایل متفاوتی داشته باشد) */
+body.is-maximized .calendar {
+    /* اگر تقویم شما در حالت عادی و مکسیمایز نیاز به جایگاه متفاوتی دارد اینجا بنویسید */
+}
+چه اتفاقی می‌افتد؟
+
+وقتی پنجره کوچک است، padding-right زیاد به body اعمال نمی‌شود، بنابراین نوت‌ها هل داده نمی‌شوند.
+با ویژگی position: fixed و z-index: 9999، تقویم وقتی باز می‌شود مثل یک پاپ‌آپ شناور روی نوت‌ها قرار می‌گیرد.
+وقتی پنجره Maximize می‌شود (کلاس is-maximized توسط جاوااسکریپت اضافه می‌شود)، پدینگ ۳۵۰ پیکسلی اعم
