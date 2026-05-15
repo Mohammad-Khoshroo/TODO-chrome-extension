@@ -391,3 +391,124 @@ loadNotes((loaded) => {
     cleanupTrash();
     renderAllNotes();
 });
+
+
+//////////////////////////////////////////////////////////////////
+
+const monthNames = [
+    "فروردین", "اردیبهشت", "خرداد",
+    "تیر", "مرداد", "شهریور",
+    "مهر", "آبان", "آذر",
+    "دی", "بهمن", "اسفند"
+];
+
+let currentGregorianDate = new Date();
+let todayJalali = jalaali.toJalaali(currentGregorianDate);
+
+let currentJy = todayJalali.jy;
+let currentJm = todayJalali.jm;
+
+function renderCalendar(jy, jm) {
+    const daysContainer = document.getElementById('daysContainer');
+    const monthYearDisplay = document.getElementById('monthYear');
+
+    daysContainer.innerHTML = '';
+    monthYearDisplay.textContent = `${monthNames[jm - 1]} ${jy}`;
+
+    // تبدیل روز اول ماه شمسی به میلادی برای پیدا کردن روز هفته
+    const firstDayGregorian = jalaali.toGregorian(jy, jm, 1);
+    const dateObj = new Date(firstDayGregorian.gy, firstDayGregorian.gm - 1, firstDayGregorian.gd);
+
+    // تنظیم روز هفته (شنبه = 0، جمعه = 6)
+    let firstDayOfWeek = dateObj.getDay() + 1;
+    if (firstDayOfWeek === 7) firstDayOfWeek = 0;
+
+    const monthLength = jalaali.jalaaliMonthLength(jy, jm);
+
+    // سلول‌های خالی قبل از شروع ماه
+    for (let i = 0; i < firstDayOfWeek; i++) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.classList.add('day', 'empty');
+        daysContainer.appendChild(emptyDiv);
+    }
+
+    // روزهای ماه
+    for (let i = 1; i <= monthLength; i++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.classList.add('day');
+        dayDiv.textContent = i;
+
+        // مشخص کردن جمعه‌ها
+        if ((firstDayOfWeek + i - 1) % 7 === 6) {
+            dayDiv.classList.add('friday');
+        }
+
+        // مشخص کردن روز فعلی
+        if (jy === todayJalali.jy && jm === todayJalali.jm && i === todayJalali.jd) {
+            dayDiv.classList.add('today');
+        }
+
+        daysContainer.appendChild(dayDiv);
+    }
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+    currentJm--;
+    if (currentJm < 1) {
+        currentJm = 12;
+        currentJy--;
+    }
+    renderCalendar(currentJy, currentJm);
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+    currentJm++;
+    if (currentJm > 12) {
+        currentJm = 1;
+        currentJy++;
+    }
+    renderCalendar(currentJy, currentJm);
+});
+
+const toggleBtn = document.getElementById('toggleCalendarBtn');
+const calendar = document.getElementById('myCalendar');
+
+toggleBtn.addEventListener('click', function() {
+    // تغییر وضعیت کلاس ها
+    calendar.classList.toggle('minimized');
+    document.body.classList.toggle('calendar-closed');
+    
+    // تغییر متن دکمه
+    if (calendar.classList.contains('minimized')) {
+        toggleBtn.innerText = '+ نمایش تقویم';
+    } else {
+        toggleBtn.innerText = '− بستن تقویم';
+    }
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    // پیدا کردن دکمه و خود تقویم
+    const toggleBtn = document.getElementById("toggleCalendarBtn");
+    const calendar = document.getElementById("myCalendar");
+
+    // اگر هر دو در HTML پیدا شدند، دستورات کلیک را اضافه کن
+    if (toggleBtn && calendar) {
+        toggleBtn.addEventListener("click", function() {
+            // اضافه یا حذف کردن کلاس‌ها
+            calendar.classList.toggle("minimized");
+            document.body.classList.toggle("calendar-closed");
+
+            // تغییر متن دکمه بر اساس وضعیت تقویم
+            if (calendar.classList.contains("minimized")) {
+                toggleBtn.innerText = "+ باز کردن تقویم";
+            } else {
+                toggleBtn.innerText = "− بستن تقویم";
+            }
+        });
+    } else {
+        console.log("دکمه toggleCalendarBtn یا تقویم myCalendar در HTML یافت نشد.");
+    }
+});
+
+// رندر اولیه
+renderCalendar(currentJy, currentJm);

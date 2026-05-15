@@ -6,9 +6,36 @@
     <title>TODO</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="images/stick-note.ico?v=0" type="image/x-icon">
+    <link href="vazirmatn/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="style.css">
+    <script src="jallali/dist/jalaali.min.js"></script>
 </head>
 
 <body>
+
+    <div class="calendar" id="myCalendar">
+        <button id="toggleCalendarBtn" class="toggle-calendar-btn">− بستن تقویم</button>
+        <div class="header">
+            <button id="prevBtn">❮</button>
+            <div id="monthYear"></div>
+            <button id="nextBtn">❯</button>
+        </div>
+        <!-- <div class="header">
+            <button id="prevMonth">&lt;</button>
+            <div class="month-year" id="monthYear"></div>
+            <button id="nextMonth">&gt;</button>
+        </div> -->
+        <div class="weekdays">
+            <div>ش</div>
+            <div>ی</div>
+            <div>د</div>
+            <div>س</div>
+            <div>چ</div>
+            <div>پ</div>
+            <div>ج</div>
+        </div>
+        <div class="days" id="daysContainer"></div>
+    </div>
 
     <div id="trash-bin">
         <img id="trash" src="images/trash-bin.ico" alt="trash-bin" width="70" height="70">

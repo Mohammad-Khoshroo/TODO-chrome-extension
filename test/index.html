@@ -1,46 +1,112 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
-
-    <!-- for link .css .js to html -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>calendar</title>
+    <link href="../vazirmatn/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="style.css">
-    <!-- <script src="script.js" defer></script> -->
-    <!-- defer 👆 tells the browser: first .css the .js -->
-
-    <!-- <meta charset="UTF-8"> -->
-
-    <!-- for scaling the view on each system -->
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes"> -->
-    <!-- description for search on google -->
-    <!-- in my code isn't useful :) -->
-    <!-- <meta name="description" content="این یک تست هست سایت نیست رکب خوردید هاهاها"> -->
-    <!-- <meta name="keywords" content="تست تست تست"> -->
-    <!-- <meta name="author" content="mohammad-khoshroo"> -->
-
-
-    <!-- ICON on tab in browsers -->
-    <!-- <link rel="icon" href="images/minecraft.ico" type="image/png"> -->
-
-    <!-- social media of my html -->
-    <!-- what a joke :)))))) -->
-    <!-- <meta property="og:title" content="First Site of my hole life"> -->
-    <!-- <meta property="og:description" content="این یک تست هست سایت نیست رکب خوردید هاهاها"> -->
-    <!-- <meta property="og:image" content="https://sage-paprenjak-cb505f.netlify.app/images/me.jpg"> -->
-    <!-- <meta property="og:url" content="https://my-test-site.com"> -->
-    <meta property="og:type" content="website">
-
-    <title>First Site of my hole life</title>
+    <script src="../jallali/dist/jalaali.min.js"></script>
 </head>
-
-
 <body>
 
-    <div class="sticky-note">
-        <div class="tape"></div>
-        <p>متن یادداشت خود را اینجا بنویسید...</p>
+<div class="calendar">
+    <div class="header">
+        <button id="prevBtn">❮</button>
+        <div id="monthYear"></div>
+        <button id="nextBtn">❯</button>
     </div>
+    <div class="weekdays">
+        <div>ش</div>
+        <div>ی</div>
+        <div>د</div>
+        <div>س</div>
+        <div>چ</div>
+        <div>پ</div>
+        <div>ج</div>
+    </div>
+    <div class="days" id="daysContainer"></div>
+</div>
+
+<script>
+    const monthNames = [
+        "فروردین", "اردیبهشت", "خرداد", 
+        "تیر", "مرداد", "شهریور", 
+        "مهر", "آبان", "آذر", 
+        "دی", "بهمن", "اسفند"
+    ];
+
+    let currentGregorianDate = new Date();
+    let todayJalali = jalaali.toJalaali(currentGregorianDate);
+    
+    let currentJy = todayJalali.jy;
+    let currentJm = todayJalali.jm;
+
+    function renderCalendar(jy, jm) {
+        const daysContainer = document.getElementById('daysContainer');
+        const monthYearDisplay = document.getElementById('monthYear');
+        
+        daysContainer.innerHTML = '';
+        monthYearDisplay.textContent = `${monthNames[jm - 1]} ${jy}`;
+
+        // تبدیل روز اول ماه شمسی به میلادی برای پیدا کردن روز هفته
+        const firstDayGregorian = jalaali.toGregorian(jy, jm, 1);
+        const dateObj = new Date(firstDayGregorian.gy, firstDayGregorian.gm - 1, firstDayGregorian.gd);
+        
+        // تنظیم روز هفته (شنبه = 0، جمعه = 6)
+        let firstDayOfWeek = dateObj.getDay() + 1;
+        if (firstDayOfWeek === 7) firstDayOfWeek = 0; 
+
+        const monthLength = jalaali.jalaaliMonthLength(jy, jm);
+
+        // سلول‌های خالی قبل از شروع ماه
+        for (let i = 0; i < firstDayOfWeek; i++) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.classList.add('day', 'empty');
+            daysContainer.appendChild(emptyDiv);
+        }
+
+        // روزهای ماه
+        for (let i = 1; i <= monthLength; i++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.classList.add('day');
+            dayDiv.textContent = i;
+
+            // مشخص کردن جمعه‌ها
+            if ((firstDayOfWeek + i - 1) % 7 === 6) {
+                dayDiv.classList.add('friday');
+            }
+
+            // مشخص کردن روز فعلی
+            if (jy === todayJalali.jy && jm === todayJalali.jm && i === todayJalali.jd) {
+                dayDiv.classList.add('today');
+            }
+
+            daysContainer.appendChild(dayDiv);
+        }
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+        currentJm--;
+        if (currentJm < 1) {
+            currentJm = 12;
+            currentJy--;
+        }
+        renderCalendar(currentJy, currentJm);
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        currentJm++;
+        if (currentJm > 12) {
+            currentJm = 1;
+            currentJy++;
+        }
+        renderCalendar(currentJy, currentJm);
+    });
+
+    // رندر اولیه
+    renderCalendar(currentJy, currentJm);
+</script>
 
 </body>
-
 </html>
