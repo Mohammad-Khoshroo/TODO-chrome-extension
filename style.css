@@ -1,12 +1,12 @@
 @font-face {
     font-family: 'MyCustomEnglishFont';
-    src: url('fonts/Party-Script.otf') format('opentype');
+    src: url('fonts/Dark-Poestry.ttf') format('opentype');
 }
 
 @font-face {
     font-family: 'MyCustomPersianFont';
-    src: url('fonts/Ziba.ttf') format('truetype');
-    /* Fixed ttf font format */
+    src: url('fonts/noor.ttf') format('truetype');
+    unicode-range: U+0600-06FF, U+FB50-FDFF, U+FE70-FEFF;
 }
 
 body {
@@ -14,7 +14,7 @@ body {
     background-image:
         radial-gradient(circle at 50% 0%, #ffffff66 0%, transparent 70%),
         repeating-linear-gradient(45deg, transparent, transparent 2px, #ffffff11 2px, #ffffff11 4px);
-    font-family: 'MyCustomEnglishFont', 'MyCustomPersianFont', Tahoma, sans-serif;
+    font-family: 'MyCustomPersianFont', 'MyCustomEnglishFont' , Tahoma, sans-serif;
     margin: 0;
     padding: 30px;
     height: 100vh;
@@ -141,7 +141,8 @@ body {
 }
 
 .task-input {
-    font-size: 1.6em;
+    font-size: 1.3em;
+    /* font-weight: regular; */
     /* Increase task font size */
     line-height: 1.3;
     /* Decrease line height to prevent false height */
@@ -374,7 +375,7 @@ textarea {
 /*               CALENDAR              */
 /* /////////////////////////////////// */
 
-.calendar {
+.Calendar {
     direction: rtl;
     position: fixed;
     /* Fix to screen */
@@ -443,9 +444,10 @@ textarea {
 
 .day {
     text-align: center;
-    padding: 10px 0;
+    padding: 6px 0;
     border-radius: 8px;
     cursor: pointer;
+    font-size: 1rem;
     color: #374151;
     transition: all 0.2s;
 }
@@ -481,7 +483,7 @@ textarea {
 }
 
 /* Minimize button style */
-.toggle-calendar-btn {
+.toggleCalendarBtn {
     width: 100%;
     background-color: #f3f4f6;
     border: none;
@@ -494,20 +496,20 @@ textarea {
     color: #555;
 }
 
-.toggle-calendar-btn:hover {
+.toggleCalendarBtn:hover {
     background-color: #e2e8f0;
 }
 
 /* Minimized calendar state */
-.calendar.minimized {
+.Calendar.minimized {
     height: 38px !important; /* Reduces height enough to only see the button */
     overflow: hidden !important;
 }
 
 /* Hide other parts inside calendar when minimized */
-.calendar.minimized .header,
-.calendar.minimized .weekdays,
-.calendar.minimized .days {
+.Calendar.minimized .header,
+.Calendar.minimized .weekdays,
+.Calendar.minimized .days {
     display: none !important;
 }
 
@@ -518,7 +520,7 @@ textarea {
 
 @media screen and (min-width: 768px) {
     /* Show calendar on larger screens */
-    .calendar {
+    .Calendar {
         display: block;
     }
 
@@ -528,7 +530,7 @@ textarea {
     }
 
     /* Reset space if calendar is closed/minimized by the user */
-    body.calendar-closed {
+    body.Calendar-closed {
         padding-right: 30px !important;
         padding-top: 45px !important;
     }
@@ -539,7 +541,7 @@ textarea {
 /* ======================================================== */
 
 /* تنظیمات تقویم برای حالت عادی (غیر Maximize) */
-.calendar {
+.Calendar {
     position: fixed !important;
     top: 20px;
     right: 20px;
@@ -548,9 +550,9 @@ textarea {
 }
 
 /* در حالت عادی بدنه پدینگ اضافی ندارد */
-body {
-    padding-right: 30px !important; /* یا هر مقدار پیش‌فرض خودتان */
-}
+/* body {
+    padding-right: 30px !important;
+} */
 
 /* ======================================================== */
 /*  فقط وقتی پنجره Maximize است                             */
@@ -562,16 +564,11 @@ body.is-maximized {
 }
 
 /* اگر در حالت Maximize تقویم رو بستیم، پدینگ برگرده به حالت عادی */
-body.is-maximized.calendar-closed {
+body.is-maximized.Calendar-closed {
     padding-right: 30px !important;
 }
 
 /* تنظیمات تقویم در حالت Maximize (اگر لازم است استایل متفاوتی داشته باشد) */
-body.is-maximized .calendar {
+body.is-maximized .Calendar {
     /* اگر تقویم شما در حالت عادی و مکسیمایز نیاز به جایگاه متفاوتی دارد اینجا بنویسید */
 }
-چه اتفاقی می‌افتد؟
-
-وقتی پنجره کوچک است، padding-right زیاد به body اعمال نمی‌شود، بنابراین نوت‌ها هل داده نمی‌شوند.
-با ویژگی position: fixed و z-index: 9999، تقویم وقتی باز می‌شود مثل یک پاپ‌آپ شناور روی نوت‌ها قرار می‌گیرد.
-وقتی پنجره Maximize می‌شود (کلاس is-maximized توسط جاوااسکریپت اضافه می‌شود)، پدینگ ۳۵۰ پیکسلی اعم

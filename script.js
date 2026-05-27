@@ -1,3 +1,5 @@
+const toFarsiNumber = (n) => n.toString().replace(/\d/g, x => "۰۱۲۳۴۵۶۷۸۹"[x]);
+
 // ----------------------
 //  ENVIRONMENT DETECTION
 // ----------------------
@@ -403,7 +405,7 @@ function renderCalendar(jy, jm) {
     const monthYearDisplay = document.getElementById('monthYear');
 
     daysContainer.innerHTML = '';
-    monthYearDisplay.textContent = `${monthNames[jm - 1]} ${jy}`;
+    monthYearDisplay.textContent = `${monthNames[jm - 1]} ${toFarsiNumber(jy)}`;
 
     // Convert the first day of Jalali month to Gregorian to find the weekday
     const firstDayGregorian = jalaali.toGregorian(jy, jm, 1);
@@ -426,7 +428,7 @@ function renderCalendar(jy, jm) {
     for (let i = 1; i <= monthLength; i++) {
         const dayDiv = document.createElement('div');
         dayDiv.classList.add('day');
-        dayDiv.textContent = i;
+        dayDiv.textContent = toFarsiNumber(i);
 
         // Highlight Fridays
         if ((firstDayOfWeek + i - 1) % 7 === 6) {
@@ -462,8 +464,8 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 
 // --- Calendar Toggle Section ---
 
-const toggleBtn = document.getElementById('toggleCalendarBtn');
-const calendar = document.getElementById('myCalendar');
+const toggleBtn = document.getElementById('calendar_btn');
+const calendar = document.getElementById('calendar');
 
 // Single event listener for toggling the calendar
 if (toggleBtn && calendar) {
