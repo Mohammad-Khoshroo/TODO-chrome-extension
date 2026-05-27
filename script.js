@@ -1,3 +1,20 @@
+const persianNumbers = [/O/g, /1/g, /2/g, /3/g, /4/g, /5/g, /6/g, /7/g, /8/g, /9/g];
+const arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
+
+function convertToPersian(str) {
+  if(typeof str === 'string') {
+    for(let i=0; i<10; i++) {
+      str = str.replace(persianNumbers[i], String.fromCharCode(i+1776)).replace(arabicNumbers[i], String.fromCharCode(i+1776));
+    }
+  }
+  return str;
+}
+
+// اعمال روی تمام تگ هایی که کلاس persian-text دارند
+document.querySelectorAll('.persian-text').forEach(el => {
+  el.innerHTML = convertToPersian(el.innerHTML);
+});
+
 const toFarsiNumber = (n) => n.toString().replace(/\d/g, x => "۰۱۲۳۴۵۶۷۸۹"[x]);
 
 // ----------------------

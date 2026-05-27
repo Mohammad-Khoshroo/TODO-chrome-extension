@@ -1,12 +1,11 @@
 @font-face {
     font-family: 'MyCustomEnglishFont';
-    src: url('fonts/Dark-Poestry.ttf') format('opentype');
+    src: url('fonts/Playwrite/PlaywriteGBJ-VariableFont_wght.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MyCustomPersianFont';
-    src: url('fonts/noor.ttf') format('truetype');
-    unicode-range: U+0600-06FF, U+FB50-FDFF, U+FE70-FEFF;
+    src: url('fonts/Harmattan/Harmattan-Regular.ttf') format('truetype');
 }
 
 body {
@@ -14,7 +13,7 @@ body {
     background-image:
         radial-gradient(circle at 50% 0%, #ffffff66 0%, transparent 70%),
         repeating-linear-gradient(45deg, transparent, transparent 2px, #ffffff11 2px, #ffffff11 4px);
-    font-family: 'MyCustomPersianFont', 'MyCustomEnglishFont' , Tahoma, sans-serif;
+    font-family: 'MyCustomPersianFont', 'MyCustomEnglishFont', Tahoma, sans-serif;
     margin: 0;
     padding: 30px;
     height: 100vh;
@@ -245,11 +244,25 @@ ul.task-list li {
 }
 
 @keyframes shake {
-    0% { transform: rotate(-6deg); }
-    25% { transform: rotate(6deg); }
-    50% { transform: rotate(-6deg); }
-    75% { transform: rotate(6deg); }
-    100% { transform: rotate(0deg); }
+    0% {
+        transform: rotate(-6deg);
+    }
+
+    25% {
+        transform: rotate(6deg);
+    }
+
+    50% {
+        transform: rotate(-6deg);
+    }
+
+    75% {
+        transform: rotate(6deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
 }
 
 #eraser {
@@ -391,9 +404,9 @@ textarea {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     font-family: 'Vazirmatn', Tahoma, sans-serif;
-    
+
     /* Hidden by default on mobile/small screens */
-    display: none; 
+    display: none;
 }
 
 
@@ -502,7 +515,8 @@ textarea {
 
 /* Minimized calendar state */
 .Calendar.minimized {
-    height: 38px !important; /* Reduces height enough to only see the button */
+    height: 38px !important;
+    /* Reduces height enough to only see the button */
     overflow: hidden !important;
 }
 
@@ -519,6 +533,7 @@ textarea {
 /* ======================================================== */
 
 @media screen and (min-width: 768px) {
+
     /* Show calendar on larger screens */
     .Calendar {
         display: block;
@@ -526,7 +541,8 @@ textarea {
 
     /* Create space on the right for notes so they don't go under the calendar */
     body {
-        padding-right: 350px !important; /* Calendar width + some gap */
+        padding-right: 350px !important;
+        /* Calendar width + some gap */
     }
 
     /* Reset space if calendar is closed/minimized by the user */
@@ -545,7 +561,8 @@ textarea {
     position: fixed !important;
     top: 20px;
     right: 20px;
-    z-index: 9999; /* قرار گرفتن روی نوت‌ها */
+    z-index: 9999;
+    /* قرار گرفتن روی نوت‌ها */
     /* نمایش و مخفی شدن آن توسط دکمه شما هندل می‌شود */
 }
 
@@ -560,7 +577,8 @@ textarea {
 
 /* وقتی Maximize شد، نوت‌ها رو هل بده سمت چپ */
 body.is-maximized {
-    padding-right: 350px !important; /* ایجاد فضا برای تقویم */
+    padding-right: 350px !important;
+    /* ایجاد فضا برای تقویم */
 }
 
 /* اگر در حالت Maximize تقویم رو بستیم، پدینگ برگرده به حالت عادی */
