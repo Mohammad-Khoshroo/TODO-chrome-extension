@@ -2,17 +2,17 @@ const persianNumbers = [/O/g, /1/g, /2/g, /3/g, /4/g, /5/g, /6/g, /7/g, /8/g, /9
 const arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
 
 function convertToPersian(str) {
-  if(typeof str === 'string') {
-    for(let i=0; i<10; i++) {
-      str = str.replace(persianNumbers[i], String.fromCharCode(i+1776)).replace(arabicNumbers[i], String.fromCharCode(i+1776));
+    if (typeof str === 'string') {
+        for (let i = 0; i < 10; i++) {
+            str = str.replace(persianNumbers[i], String.fromCharCode(i + 1776)).replace(arabicNumbers[i], String.fromCharCode(i + 1776));
+        }
     }
-  }
-  return str;
+    return str;
 }
 
 // اعمال روی تمام تگ هایی که کلاس persian-text دارند
 document.querySelectorAll('.persian-text').forEach(el => {
-  el.innerHTML = convertToPersian(el.innerHTML);
+    el.innerHTML = convertToPersian(el.innerHTML);
 });
 
 const toFarsiNumber = (n) => n.toString().replace(/\d/g, x => "۰۱۲۳۴۵۶۷۸۹"[x]);
@@ -49,7 +49,7 @@ function saveNotes() {
 // ----------------------
 //     MAIN VARIABLES
 // ----------------------
-const fridgeContainer = document.getElementById('fridge-container');
+const fridgeContainer = document.getElementById('container');
 const addNoteBtn = document.getElementById('add-note-btn');
 const trashBin = document.getElementById('trash-bin');
 const magneticPen = document.getElementById('pencil');
@@ -481,7 +481,7 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 
 // --- Calendar Toggle Section ---
 
-const toggleBtn = document.getElementById('calendar_btn');
+const toggleBtn = document.getElementById('calendar-btn');
 const calendar = document.getElementById('calendar');
 
 // Single event listener for toggling the calendar
@@ -500,3 +500,15 @@ if (toggleBtn && calendar) {
 
 // Initial calendar render
 renderCalendar(currentJy, currentJm);
+
+
+function checkWindowMaximized() {
+    if (window.outerWidth >= window.screen.availWidth * 0.99) {
+        document.body.classList.add('is-maximized-window');
+    } else {
+        document.body.classList.remove('is-maximized-window');
+    }
+}
+
+window.addEventListener('resize', checkWindowMaximized);
+checkWindowMaximized();

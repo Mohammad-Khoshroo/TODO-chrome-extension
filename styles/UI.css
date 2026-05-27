@@ -1,7 +1,7 @@
 /* ==========================================
    2. LAYOUT & FIXED TOOLS (UI Controls)
    ========================================== */
-#fridge-container {
+#container {
     display: block;
     column-width: 260px;
     column-gap: 20px;
@@ -9,7 +9,10 @@
     user-select: none;
 }
 
-#add-note-btn, #pencil, #eraser, #trash-bin {
+#add-note-btn,
+#pencil,
+#eraser,
+#trash-bin {
     position: fixed;
     z-index: 1000;
     user-select: none;
@@ -18,20 +21,55 @@
 }
 
 #add-note-btn {
-    bottom: 20px; right: 20px;
+    bottom: 20px;
+    right: 20px;
     padding: 15px 20px;
     background-color: #ff9800;
-    color: white; border: none; border-radius: 50px;
+    color: white;
+    border: none;
+    border-radius: 50px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-#pencil { bottom: 80px; right: 25px; font-size: 40px; cursor: grab; }
-#eraser { bottom: 80px; right: 80px; font-size: 40px; cursor: grab; }
-#trash-bin { bottom: 20px; left: 20px; font-size: 40px; opacity: 0.8; }
+#pencil {
+    bottom: 80px;
+    right: 25px;
+    font-size: 40px;
+    cursor: grab;
+}
 
-#trash-bin.drag-over { opacity: 1; transform: scale(1.2); }
+#eraser {
+    bottom: 80px;
+    right: 80px;
+    font-size: 40px;
+    cursor: grab;
+}
+
+#trash-bin {
+    bottom: 20px;
+    left: 20px;
+    font-size: 40px;
+    opacity: 0.8;
+}
+
+#trash-bin.drag-over {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
 @keyframes shake {
-    0%, 100% { transform: rotate(0deg); }
-    25%, 75% { transform: rotate(6deg); }
-    50% { transform: rotate(-6deg); }
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25%,
+    75% {
+        transform: rotate(6deg);
+    }
+
+    50% {
+        transform: rotate(-6deg);
+    }
 }

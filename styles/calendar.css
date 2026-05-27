@@ -1,18 +1,127 @@
-/* ==========================================
-   5. CALENDAR & RESPONSIVE LOGIC
-   ========================================== */
 .Calendar {
-    direction: rtl; position: fixed;
-    top: 30px; right: 30px; z-index: 900;
-    background-color: #ffffff; width: 320px;
-    border-radius: 15px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    display: none; /* مخفی در موبایل */
+    direction: rtl;
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    z-index: 900;
+    /* place above other elements */
+    background-color: #ffffff;
+    width: 320px;
+    height: 445px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    transition: height 0.3s ease-in-out;
 }
 
-/* تقویم در حالت مکسیمایز */
-body.is-maximized { padding-right: 350px !important; }
-body.is-maximized.Calendar-closed { padding-right: 30px !important; }
+.Calendar.minimized {
+    height: 38px !important;
+    overflow: hidden !important;
+}
 
-@media screen and (min-width: 768px) {
-    .Calendar { display: block; }
+.header {
+    background-color: #4f46e5;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header button {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.header button:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background-color: #f9fafb;
+    text-align: center;
+    font-weight: bold;
+    color: #6b7280;
+    padding: 10px 0;
+    font-size: 0.9rem;
+}
+
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    padding: 15px;
+    gap: 5px;
+}
+
+.day {
+    text-align: center;
+    padding: 6px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #374151;
+    transition: all 0.2s;
+}
+
+.day:hover:not(.empty) {
+    background-color: #e0e7ff;
+    color: #4f46e5;
+}
+
+.day.empty {
+    cursor: default;
+}
+
+.today {
+    border: 2px solid #007bff;
+    background-color: #e6f2ff;
+    font-weight: bold;
+}
+
+.day.today {
+    background-color: #4f46e5;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+.day.friday {
+    color: #ef4444;
+}
+
+.day.friday.today {
+    color: #ffffff;
+}
+
+
+.toggleCalendarBtn {
+    width: 100%;
+    background-color: #f3f4f6;
+    border: none;
+    padding: 10px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    /* transition: padding-up 0.3s ease; */
+    color: #555;
+}
+
+.toggleCalendarBtn:hover {
+    background-color: #e2e8f0;
 }

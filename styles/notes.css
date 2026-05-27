@@ -1,49 +1,207 @@
-/* ==========================================
-   3. STICKY NOTE COMPONENT
-   ========================================== */
-.note-wrapper {
-    break-inside: avoid; display: inline-flex;
-    flex-direction: column; margin-bottom: 20px;
-    position: relative; cursor: grab;
-}
-
 .sticky-note {
-    width: 240px; min-height: 240px;
-    padding: 20px 15px; position: relative;
-    display: flex; flex-direction: column;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    width: 240px;
+    min-height: 240px;
+    padding: 20px 15px;
+    margin-bottom: 20px;
+    margin-top: 40px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    /* Color applied via classes and variables */
     box-shadow: 0px 10px 15px -5px rgba(0, 0, 0, 0.3);
     border-radius: 0px 0px 15px 5px / 0px 0px 5px 15px;
     transition: all 0.2s;
+    background-image: none;
+    -webkit-column-break-inside: avoid;
+    /* Add this for webkit browsers */
+
+    display: inline-flex;
+    /* Use inline-flex instead of flex */
+    transform: translateZ(0);
+    /* This creates a new layer and prevents the tape from being clipped */
 }
 
-/* Tape (چسب روی نوت) */
+.sticky-note.active {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.5), 5px 8px 15px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02) !important;
+    z-index: 10;
+}
+
+.sticky-note.multi-page {
+    background-image: repeating-linear-gradient(to bottom,
+            transparent 0px,
+            transparent 235px,
+            rgba(0, 0, 0, 0.05) 235px,
+            rgba(0, 0, 0, 0.2) 238px,
+            var(--note-color, #ffeb3b) 240px);
+    box-shadow: 0px 15px 20px -5px rgba(0, 0, 0, 0.4);
+}
+
+.sticky-note.crumpled {
+    box-shadow: inset 2px 2px 10px rgba(0, 0, 0, 0.1), inset -2px -2px 10px rgba(0, 0, 0, 0.1), 0px 10px 15px -5px rgba(0, 0, 0, 0.3);
+    border-radius: 5px 3px 8px 4px;
+    transform: rotate(2deg) scale(0.98);
+}
+
+
+.task-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+    padding: 4px;
+    transition: background 0.2s;
+}
+
+.task-item.drag-over {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.task-input,
+.note-title {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-family: inherit;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    word-wrap: break-word;
+    box-sizing: border-box;
+}
+
+.note-title {
+    font-size: 1.7em;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    padding: 5px 0;
+    line-height: 1.5;
+}
+
+.task-input {
+    font-size: 1.3em;
+    /* font-weight: regular; */
+    /* Increase task font size */
+    line-height: 1.3;
+    /* Decrease line height to prevent false height */
+    padding: 2px 0 2px 8px;
+    /* Adjust padding and create slight distance from checkbox */
+    margin: 0;
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul.task-list li {
+    display: flex;
+    align-items: center;
+    /* Align checkbox with task text */
+    padding: 4px 5px;
+    /* Reduce padding around each task to lessen gaps */
+    border-radius: 4px;
+    margin-bottom: 2px;
+    /* Very small gap between each item */
+}
+
+textarea {
+    user-select: text;
+}
+
 .tape {
-    position: absolute; width: 100px; height: 30px;
-    left: 50%; top: -20px; transform: translateX(-50%) rotate(-2deg);
+    position: absolute;
+    width: 100px;
+    height: 30px;
+    left: 50%;
+    /* Keep tape completely inside the frame to avoid cutting in columns (based on previous fix) */
+    top: -20px;
+
+    /* Slight rotation for a more natural look */
+    transform: translateX(-50%) rotate(-2deg);
+
+    /* Masking tape look: semi-transparent with a glassy effect */
     background-color: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(2px); z-index: 10;
-    clip-path: polygon(0% 5%, 4% 15%, 0% 25%, 5% 40%, 0% 55%, 6% 70%, 1% 85%, 5% 100%, 95% 100%, 100% 85%, 94% 70%, 100% 55%, 95% 40%, 100% 25%, 96% 15%, 100% 5%, 95% 0%, 5% 0%);
+    backdrop-filter: blur(2px);
+    /* This line gives the tape a matte finish */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+    /* Create jagged and irregular edges on the left and right */
+    clip-path: polygon(0% 5%, 4% 15%, 0% 25%, 5% 40%, 0% 55%, 6% 70%, 1% 85%, 5% 100%,
+            /* Left edge */
+            95% 100%, 100% 85%, 94% 70%, 100% 55%, 95% 40%, 100% 25%, 96% 15%, 100% 5%,
+            /* Right edge */
+            95% 0%, 5% 0%
+            /* Top edge */
+        );
+
+    z-index: 10;
 }
 
-.sticky-note.multi-page {}
-.sticky-note.crumpled   {}
-.color-0 { --note-color: #f9e426; background-color: var(--note-color); }
-
-/* ==========================================
-   4. NOTE CONTENT (Tasks & Inputs)
-   ========================================== */
-.task-list { list-style: none; padding: 0; }
-
-.task-item { display: flex; align-items: center; gap: 8px; padding: 4px; }
-
-.note-title, .task-input {
-    border: none; background: transparent; width: 100%;
-    outline: none; font-family: inherit;
-}
-
-.note-title { font-size: 1.7em; font-weight: bold; border-bottom: 1px solid rgba(0,0,0,0.1); }
-
-.scribbled .task-input {
-    text-decoration: line-through wavy rgba(25, 25, 25, 0.8);
+/* Tape texture */
+.tape::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(45deg,
+            rgba(255, 255, 255, 0.25),
+            rgba(255, 255, 255, 0.25) 3px,
+            transparent 3px,
+            transparent 6px);
     opacity: 0.6;
+}
+
+
+/* Settings for the wrapper of connected papers */
+.note-wrapper {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    display: inline-flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    position: relative;
+    cursor: grab;
+}
+
+.note-wrapper:active {
+    cursor: grabbing;
+}
+
+/* Maintain the original appearance and fixed size of each paper */
+.note-wrapper .sticky-note {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    position: relative;
+    /* Restore corner curves for a bulging feel */
+    border-radius: 0px 0px 15px 5px / 0px 0px 5px 15px !important;
+    /* Restore original 3D shadow */
+    box-shadow: 0px 10px 15px -5px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Adjust secondary papers to go slightly under the top paper */
+.note-wrapper .sticky-note.chained-note {
+    margin-top: -20px !important;
+    /* Amount to go under the top paper */
+}
+
+/* Adjust connecting tape */
+.tape.link-tape {
+    top: -10px;
+    /* Adjust placement of the tape on the edge of two papers */
+    z-index: 10;
+}
+
+/* Use box-shadow for focus/selection state */
+.note-wrapper .sticky-note:focus-within,
+.sticky-note:focus-within,
+.sticky-note.selected,
+.note-wrapper.selected .sticky-note {
+    /* First shadow for selection state (blue) and second is the previous depth shadow */
+    box-shadow: 0 0 0 3px #4a90e2, 2px 2px 10px rgba(0, 0, 0, 0.2) !important;
 }
