@@ -1,23 +1,37 @@
 let msnry;
+let currentDragType = null;
+let draggedTaskInfo = null;
+let draggedNoteId = null;
 
-const persianNumbers = [/O/g, /1/g, /2/g, /3/g, /4/g, /5/g, /6/g, /7/g, /8/g, /9/g];
+const persianNumbers = [/0/g, /1/g, /2/g, /3/g, /4/g, /5/g, /6/g, /7/g, /8/g, /9/g];
 const arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
 
 function convertToPersian(str) {
     if (typeof str === 'string') {
         for (let i = 0; i < 10; i++) {
-            str = str.replace(persianNumbers[i], String.fromCharCode(i + 1776)).replace(arabicNumbers[i], String.fromCharCode(i + 1776));
+            str = str
+                .replace(persianNumbers[i], String.fromCharCode(i + 1776))
+                .replace(arabicNumbers[i], String.fromCharCode(i + 1776));
         }
     }
     return str;
 }
 
-// اعمال روی تمام تگ هایی که کلاس persian-text دارند
 document.querySelectorAll('.persian-text').forEach(el => {
     el.innerHTML = convertToPersian(el.innerHTML);
 });
 
 const toFarsiNumber = (n) => n.toString().replace(/\d/g, x => "۰۱۲۳۴۵۶۷۸۹"[x]);
+
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 
 // ----------------------
 //  ENVIRONMENT DETECTION
@@ -27,7 +41,6 @@ const isExtension =
     chrome.storage &&
     chrome.storage.local;
 
-// Wrapper functions for storage
 function loadNotes(callback) {
     if (isExtension) {
         chrome.storage.local.get(["fridgeNotes"], (result) => {
@@ -56,6 +69,7 @@ const addNoteBtn = document.getElementById('add-note-btn');
 const trashBin = document.getElementById('trash-bin');
 const magneticPen = document.getElementById('pencil');
 const eraser = document.getElementById('eraser');
+const trashIcon = document.getElementById("trash");
 
 let notes = [];
 let activeNoteIndex = null;
@@ -102,8 +116,6 @@ function cleanupTrash() {
     updateTrashIcon();
 }
 
-const trashIcon = document.getElementById("trash");
-
 function updateTrashIcon() {
     const hasTrash = notes.some(n => n.deletedAt);
 
@@ -119,7 +131,7 @@ function updateTrashIcon() {
 //       RENDERING
 // ----------------------
 function autoResizeTextareas() {
-    document.querySelectorAll('.task-input, .note-title').forEach(t => {
+    document.querySelectorAll('.note-task-text, .note-title').forEach(t => {
         t.style.height = 'auto';
         t.style.height = t.scrollHeight + 'px';
     });
@@ -131,49 +143,39 @@ function renderAllNotes() {
     notes.forEach((note, noteIndex) => {
         if (note.deletedAt) return;
 
-        // Create a main wrapper for notes so they remain grouped together
+        if (!note.id) {
+            note.id = 'note_' + Date.now() + '_' + Math.random();
+        }
+
         const wrapper = document.createElement('div');
         wrapper.className = 'note-wrapper';
-        wrapper.setAttribute('draggable', 'true');
+        wrapper.draggable = true;
 
-        // Apply random rotation and margins to the entire group
         wrapper.style.transform = `rotate(${(Math.random() * 6) - 3}deg)`;
         wrapper.style.marginTop = `${Math.random() * 15 + 40}px`;
         wrapper.style.marginLeft = `${(Math.random() * 10) - 5}px`;
 
-        wrapper.addEventListener("dragstart", (e) => {
-            if (!note.id) note.id = 'note_' + Date.now() + Math.random();
-            e.dataTransfer.setData("noteId", note.id);
-        });
-
         let taskOffset = 0;
         let pageIndex = 0;
-
         let currentSign = Math.random() > 0.5 ? 1 : -1;
 
-        // Split tasks into different pages
         do {
             const tasksLimit = pageIndex === 0 ? 4 : 5;
             const pageTasks = note.tasks.slice(taskOffset, taskOffset + tasksLimit);
 
             const noteDiv = document.createElement('div');
+
             let rotationAngle;
 
-            // 5% chance for the angle to be exactly zero
             if (Math.random() < 0.05) {
                 rotationAngle = 0;
             } else {
-                // Generate a random angle between 1 and 3 degrees
-                let randomMagnitude = Math.random() * 2 + 1;
-
-                // Apply sign (positive or negative) to the angle
+                const randomMagnitude = Math.random() * 2 + 1;
                 rotationAngle = randomMagnitude * currentSign;
             }
 
-            // Apply rotation to the page
             noteDiv.style.transform = `rotate(${rotationAngle}deg)`;
 
-            // Reverse the sign for the next page
             if (rotationAngle !== 0) {
                 currentSign *= -1;
             }
@@ -181,23 +183,41 @@ function renderAllNotes() {
             noteDiv.className = `note-paper ${note.colorClass} ${activeNoteIndex === noteIndex ? 'active' : ''}`;
             noteDiv.dataset.noteIndex = noteIndex;
 
-            // Build tasks HTML with absolute index
             let tasksHTML = pageTasks.map((task, tIndex) => {
                 const absoluteIndex = taskOffset + tIndex;
+
                 return `
-                <li class="task-item ${task.scribbled ? 'scribbled' : ''}" data-task-index="${absoluteIndex}">
-                    <input height="40px" type="checkbox" class="task-checkbox" ${task.checked ? "checked" : ""}>
-                    <textarea class="task-input" rows="1" placeholder="task. . .">${task.text}</textarea>
-                </li>
-            `}).join('');
+                    <li class="note-task ${task.scribbled ? 'scribbled' : ''}" 
+                        data-task-index="${absoluteIndex}" 
+                        draggable="true">
+                        
+                        <input 
+                            type="checkbox" 
+                            class="task-checkbox" 
+                            draggable="false"
+                            ${task.checked ? "checked" : ""}>
+                            
+                        <textarea 
+                            class="note-task-text" 
+                            rows="1" 
+                            draggable="false"
+                            placeholder="task. . .">${escapeHTML(task.text)}</textarea>
+                    </li>
+                `;
+            }).join('');
 
             let innerHTML = '';
 
             if (pageIndex === 0) {
                 innerHTML += `<div class="tape"></div>`;
-                innerHTML += `<input type="text" class="note-title" value="${note.title}" placeholder="Note Title. . .">`;
+                innerHTML += `
+                    <textarea 
+                        class="note-title" 
+                        rows="1" 
+                        draggable="false"
+                        placeholder="Note Title. . .">${escapeHTML(note.title)}</textarea>
+                `;
             } else {
-                // Tape to connect subsequent pages to the previous one
                 innerHTML += `<div class="tape link-tape"></div>`;
                 noteDiv.classList.add('chained-note');
             }
@@ -217,20 +237,18 @@ function renderAllNotes() {
     autoResizeTextareas();
     updateTrashIcon();
 
-    // ---> کدهای جدید برای چیدمان پینترستی <---
-    // کمی تاخیر می‌دهیم تا مرورگر المان‌ها را در DOM رندر کند
     setTimeout(() => {
         if (msnry) {
-            msnry.destroy(); // حذف چیدمان قبلی
+            msnry.destroy();
         }
+
         msnry = new Masonry(fridgeContainer, {
             itemSelector: '.note-wrapper',
-            gutter: 20, // فاصله بین یادداشت‌ها (به دلخواه تنظیم کنید)
-            fitWidth: true, // اگر می‌خواهید کل گرید در وسط صفحه قرار گیرد
-            transitionDuration: '0.2s' // انیمیشن مرتب شدن
+            gutter: 20,
+            fitWidth: true,
+            transitionDuration: '0.2s'
         });
     }, 50);
-
 }
 
 
@@ -251,47 +269,74 @@ addNoteBtn.addEventListener('click', () => {
     renderAllNotes();
 });
 
+
+// ذخیره عنوان و تسک‌ها
+fridgeContainer.addEventListener('input', (e) => {
+    const noteEl = e.target.closest('.note-paper');
+    if (!noteEl) return;
+
+    const noteIndex = Number(noteEl.dataset.noteIndex);
+
+    if (e.target.classList.contains('note-title')) {
+        notes[noteIndex].title = e.target.value;
+        e.target.style.height = 'auto';
+        e.target.style.height = e.target.scrollHeight + 'px';
+        saveNotes();
+    }
+
+    if (e.target.classList.contains('note-task-text')) {
+        const taskEl = e.target.closest('.note-task');
+        if (!taskEl) return;
+
+        const taskIndex = Number(taskEl.dataset.taskIndex);
+        notes[noteIndex].tasks[taskIndex].text = e.target.value;
+
+        e.target.style.height = 'auto';
+        e.target.style.height = e.target.scrollHeight + 'px';
+
+        saveNotes();
+    }
+});
+
 fridgeContainer.addEventListener('change', (e) => {
     const noteEl = e.target.closest('.note-paper');
     if (!noteEl) return;
 
-    const noteIndex = +noteEl.dataset.noteIndex;
-
-    if (e.target.classList.contains('note-title')) {
-        notes[noteIndex].title = e.target.value;
-    }
-
-    if (e.target.classList.contains('task-input')) {
-        const taskIndex = +e.target.closest('.task-item').dataset.taskIndex;
-        notes[noteIndex].tasks[taskIndex].text = e.target.value;
-    }
+    const noteIndex = Number(noteEl.dataset.noteIndex);
 
     if (e.target.classList.contains('task-checkbox')) {
-        const taskIndex = +e.target.closest('.task-item').dataset.taskIndex;
-        notes[noteIndex].tasks[taskIndex].checked = e.target.checked;
-    }
+        const taskEl = e.target.closest('.note-task');
+        if (!taskEl) return;
 
-    saveNotes();
+        const taskIndex = Number(taskEl.dataset.taskIndex);
+        notes[noteIndex].tasks[taskIndex].checked = e.target.checked;
+        saveNotes();
+    }
 });
 
+
+// انتخاب note فعال
 document.addEventListener("mousedown", (e) => {
     const noteEl = e.target.closest(".note-paper");
 
-    // Click on note
     if (noteEl) {
-        const newIndex = +noteEl.dataset.noteIndex;
+        const newIndex = Number(noteEl.dataset.noteIndex);
 
         if (newIndex !== activeNoteIndex) {
             activeNoteIndex = newIndex;
 
-            document.querySelectorAll('.note-paper').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll(`.note-paper[data-note-index="${activeNoteIndex}"]`)
-                .forEach(el => el.classList.add('active'));
+            document.querySelectorAll('.note-paper').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            document.querySelectorAll(`.note-paper[data-note-index="${activeNoteIndex}"]`).forEach(el => {
+                el.classList.add('active');
+            });
         }
+
         return;
     }
 
-    // Ignore UI tools
     if (
         e.target.closest("#add-note-btn") ||
         e.target.closest("#trash-bin") ||
@@ -301,7 +346,6 @@ document.addEventListener("mousedown", (e) => {
         return;
     }
 
-    // Remove focus from inputs
     if (
         document.activeElement instanceof HTMLInputElement ||
         document.activeElement instanceof HTMLTextAreaElement
@@ -309,7 +353,6 @@ document.addEventListener("mousedown", (e) => {
         document.activeElement.blur();
     }
 
-    // Deselect note
     if (activeNoteIndex !== null) {
         activeNoteIndex = null;
         renderAllNotes();
@@ -317,83 +360,269 @@ document.addEventListener("mousedown", (e) => {
 });
 
 
-// Ctrl+Enter → add task
+// Ctrl + Enter برای اضافه کردن تسک
 document.addEventListener("keydown", e => {
     if (e.ctrlKey && e.key === "Enter" && activeNoteIndex != null) {
-        notes[activeNoteIndex].tasks.push({ text: "", checked: false, scribbled: false });
+        notes[activeNoteIndex].tasks.push({
+            text: "",
+            checked: false,
+            scribbled: false
+        });
+
         saveNotes();
         renderAllNotes();
 
         setTimeout(() => {
-            // Find all task inputs of the active note and focus on the last one
-            const inputs = document.querySelectorAll(`.note-wrapper .note-paper[data-note-index="${activeNoteIndex}"] .task-input`);
-            if (inputs.length > 0) inputs[inputs.length - 1].focus();
+            const inputs = document.querySelectorAll(
+                `.note-paper[data-note-index="${activeNoteIndex}"] .note-task-text`
+            );
+
+            if (inputs.length > 0) {
+                inputs[inputs.length - 1].focus();
+            }
         }, 30);
     }
 });
 
 
 // ----------------------
-//     Pen & Eraser
+//     DRAG & DROP CLEAN
 // ----------------------
+
 magneticPen.addEventListener("dragstart", (e) => {
-    e.dataTransfer.setData("type", "pen");
+    currentDragType = "pen";
+    draggedTaskInfo = null;
+    draggedNoteId = null;
+
+    e.dataTransfer.setData("text/plain", "pen");
+    e.dataTransfer.effectAllowed = "move";
 });
 
 eraser.addEventListener("dragstart", (e) => {
-    e.dataTransfer.setData("type", "eraser");
+    currentDragType = "eraser";
+    draggedTaskInfo = null;
+    draggedNoteId = null;
+
+    e.dataTransfer.setData("text/plain", "eraser");
+    e.dataTransfer.effectAllowed = "move";
 });
+
+
+
+fridgeContainer.addEventListener("dragstart", (e) => {
+    if (
+        e.target.closest(".note-task-text") ||
+        e.target.closest(".note-title") ||
+        e.target.closest(".task-checkbox")
+    ) {
+        e.preventDefault();
+        return;
+    }
+
+    const taskEl = e.target.closest(".note-task");
+
+    if (taskEl) {
+        const notePaper = taskEl.closest(".note-paper");
+        if (!notePaper) return;
+
+        const noteIndex = Number(notePaper.dataset.noteIndex);
+        const taskIndex = Number(taskEl.dataset.taskIndex);
+
+        currentDragType = "task";
+        draggedTaskInfo = { noteIndex, taskIndex };
+        draggedNoteId = null;
+
+        e.dataTransfer.setData("text/plain", "task");
+        e.dataTransfer.effectAllowed = "move";
+
+        taskEl.classList.add("dragging-task");
+        return;
+    }
+
+    const wrapper = e.target.closest(".note-wrapper");
+
+    if (wrapper) {
+        const notePaper = wrapper.querySelector(".note-paper");
+        if (!notePaper) return;
+
+        const noteIndex = Number(notePaper.dataset.noteIndex);
+        const note = notes[noteIndex];
+        if (!note) return;
+
+        if (!note.id) {
+            note.id = 'note_' + Date.now() + '_' + Math.random();
+            saveNotes();
+        }
+
+        currentDragType = "note";
+        draggedTaskInfo = null;
+        draggedNoteId = note.id;
+
+        e.dataTransfer.setData("text/plain", "note");
+        e.dataTransfer.effectAllowed = "move";
+
+        wrapper.classList.add("dragging-note");
+    }
+});
+
+
+document.addEventListener("dragend", () => {
+    document.querySelectorAll(".dragging-task").forEach(el => {
+        el.classList.remove("dragging-task");
+    });
+
+    document.querySelectorAll(".dragging-note").forEach(el => {
+        el.classList.remove("dragging-note");
+    });
+
+    document.querySelectorAll(".note-task.drag-over").forEach(el => {
+        el.classList.remove("drag-over");
+    });
+
+    trashBin.classList.remove("drag-over");
+
+    currentDragType = null;
+    draggedTaskInfo = null;
+    draggedNoteId = null;
+});
+
 
 fridgeContainer.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    const item = e.target.closest(".task-item");
-    if (item) item.classList.add("drag-over");
-});
-
-fridgeContainer.addEventListener("dragleave", (e) => {
-    const item = e.target.closest(".task-item");
-    if (item) item.classList.remove("drag-over");
-});
-
-fridgeContainer.addEventListener("drop", (e) => {
-    e.preventDefault();
-
-    const taskItem = e.target.closest(".task-item");
+    const taskItem = e.target.closest(".note-task");
     if (!taskItem) return;
 
-    const dragType = e.dataTransfer.getData("type");
-    const noteIndex = +taskItem.closest(".note-paper").dataset.noteIndex;
-    const taskIndex = +taskItem.dataset.taskIndex;
-    const task = notes[noteIndex].tasks[taskIndex];
+    if (!["task", "pen", "eraser"].includes(currentDragType)) return;
 
-    if (dragType === "pen") {
-        task.scribbled = !task.scribbled;
-        task.scribbledAt = task.scribbled ? Date.now() : null;
-    }
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
 
-    if (dragType === "eraser") {
-        notes[noteIndex].tasks.splice(taskIndex, 1);
-    }
+    document.querySelectorAll(".note-task.drag-over").forEach(el => {
+        if (el !== taskItem) {
+            el.classList.remove("drag-over");
+        }
+    });
 
-    saveNotes();
-    renderAllNotes();
+    taskItem.classList.add("drag-over");
 });
 
 
-// Trash bin handling
-trashBin.addEventListener("dragover", (e) => {
+fridgeContainer.addEventListener("dragleave", (e) => {
+    const taskItem = e.target.closest(".note-task");
+    if (!taskItem) return;
+
+    const related = e.relatedTarget;
+
+    if (related && taskItem.contains(related)) {
+        return;
+    }
+
+    taskItem.classList.remove("drag-over");
+});
+
+
+fridgeContainer.addEventListener("drop", (e) => {
+    const targetTaskEl = e.target.closest(".note-task");
+    if (!targetTaskEl) return;
+
+    if (!["task", "pen", "eraser"].includes(currentDragType)) return;
+
     e.preventDefault();
+    e.stopPropagation();
+
+    document.querySelectorAll(".note-task.drag-over").forEach(el => {
+        el.classList.remove("drag-over");
+    });
+
+    const targetNotePaper = targetTaskEl.closest(".note-paper");
+    if (!targetNotePaper) return;
+
+    const targetNoteIndex = Number(targetNotePaper.dataset.noteIndex);
+    const targetTaskIndex = Number(targetTaskEl.dataset.taskIndex);
+
+    if (currentDragType === "task") {
+        if (!draggedTaskInfo) return;
+
+        const sourceNoteIndex = draggedTaskInfo.noteIndex;
+        const sourceTaskIndex = draggedTaskInfo.taskIndex;
+
+        if (
+            Number.isNaN(sourceNoteIndex) ||
+            Number.isNaN(sourceTaskIndex) ||
+            Number.isNaN(targetNoteIndex) ||
+            Number.isNaN(targetTaskIndex)
+        ) {
+            return;
+        }
+
+        if (sourceNoteIndex === targetNoteIndex && sourceTaskIndex === targetTaskIndex) {
+            return;
+        }
+
+        const sourceTasks = notes[sourceNoteIndex]?.tasks;
+        const targetTasks = notes[targetNoteIndex]?.tasks;
+
+        if (!sourceTasks || !targetTasks) return;
+
+        const [movedTask] = sourceTasks.splice(sourceTaskIndex, 1);
+        if (!movedTask) return;
+
+        let insertIndex = targetTaskIndex;
+
+        if (sourceNoteIndex === targetNoteIndex && sourceTaskIndex < targetTaskIndex) {
+            insertIndex--;
+        }
+
+        targetTasks.splice(insertIndex, 0, movedTask);
+
+        saveNotes();
+        renderAllNotes();
+        return;
+    }
+
+    if (currentDragType === "pen") {
+        const task = notes[targetNoteIndex]?.tasks?.[targetTaskIndex];
+        if (!task) return;
+
+        task.scribbled = !task.scribbled;
+        task.scribbledAt = task.scribbled ? Date.now() : null;
+
+        saveNotes();
+        renderAllNotes();
+        return;
+    }
+
+    if (currentDragType === "eraser") {
+        if (!notes[targetNoteIndex]?.tasks) return;
+
+        notes[targetNoteIndex].tasks.splice(targetTaskIndex, 1);
+
+        saveNotes();
+        renderAllNotes();
+    }
+});
+
+// ----------------------
+//       TRASH BIN
+// ----------------------
+trashBin.addEventListener("dragover", (e) => {
+    if (currentDragType !== "note") return;
+
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
     trashBin.classList.add("drag-over");
 });
 
-trashBin.addEventListener("dragleave", () => trashBin.classList.remove("drag-over"));
+trashBin.addEventListener("dragleave", () => {
+    trashBin.classList.remove("drag-over");
+});
 
 trashBin.addEventListener("drop", (e) => {
+    if (currentDragType !== "note") return;
+
     e.preventDefault();
     trashBin.classList.remove("drag-over");
 
-    const noteId = e.dataTransfer.getData("noteId");
-    const note = notes.find(n => n.id === noteId);
+    const note = notes.find(n => n.id === draggedNoteId);
 
     if (note) {
         note.deletedAt = Date.now();
@@ -413,6 +642,17 @@ setInterval(cleanupOldScribbles, 5 * 60 * 1000);
 // ----------------------
 loadNotes((loaded) => {
     notes = loaded;
+
+    notes.forEach(note => {
+        if (!note.id) {
+            note.id = 'note_' + Date.now() + '_' + Math.random();
+        }
+
+        if (!Array.isArray(note.tasks)) {
+            note.tasks = [];
+        }
+    });
+
     cleanupOldScribbles();
     cleanupTrash();
     renderAllNotes();
@@ -444,36 +684,38 @@ function renderCalendar(jy, jm) {
     daysContainer.innerHTML = '';
     monthYearDisplay.textContent = `${monthNames[jm - 1]} ${toFarsiNumber(jy)}`;
 
-    // Convert the first day of Jalali month to Gregorian to find the weekday
     const firstDayGregorian = jalaali.toGregorian(jy, jm, 1);
-    const dateObj = new Date(firstDayGregorian.gy, firstDayGregorian.gm - 1, firstDayGregorian.gd);
+    const dateObj = new Date(
+        firstDayGregorian.gy,
+        firstDayGregorian.gm - 1,
+        firstDayGregorian.gd
+    );
 
-    // Setup weekday indices (Saturday = 0, Friday = 6)
     let firstDayOfWeek = dateObj.getDay() + 1;
     if (firstDayOfWeek === 7) firstDayOfWeek = 0;
 
     const monthLength = jalaali.jalaaliMonthLength(jy, jm);
 
-    // Empty cells before the 1st of the month
     for (let i = 0; i < firstDayOfWeek; i++) {
         const emptyDiv = document.createElement('div');
         emptyDiv.classList.add('day', 'empty');
         daysContainer.appendChild(emptyDiv);
     }
 
-    // Days of the month
     for (let i = 1; i <= monthLength; i++) {
         const dayDiv = document.createElement('div');
         dayDiv.classList.add('day');
         dayDiv.textContent = toFarsiNumber(i);
 
-        // Highlight Fridays
         if ((firstDayOfWeek + i - 1) % 7 === 6) {
             dayDiv.classList.add('friday');
         }
 
-        // Highlight current day
-        if (jy === todayJalali.jy && jm === todayJalali.jm && i === todayJalali.jd) {
+        if (
+            jy === todayJalali.jy &&
+            jm === todayJalali.jm &&
+            i === todayJalali.jd
+        ) {
             dayDiv.classList.add('today');
         }
 
@@ -483,26 +725,30 @@ function renderCalendar(jy, jm) {
 
 document.getElementById('prevBtn').addEventListener('click', () => {
     currentJm--;
+
     if (currentJm < 1) {
         currentJm = 12;
         currentJy--;
     }
+
     renderCalendar(currentJy, currentJm);
 });
 
 document.getElementById('nextBtn').addEventListener('click', () => {
     currentJm++;
+
     if (currentJm > 12) {
         currentJm = 1;
         currentJy++;
     }
+
     renderCalendar(currentJy, currentJm);
 });
 
-// --- Calendar Toggle Section ---
 
-// --- Calendar Toggle Section ---
-
+// ----------------------
+//     CALENDAR TOGGLE
+// ----------------------
 const toggleBtn = document.getElementById('calendar-btn');
 const calendar = document.getElementById('calendar');
 
@@ -530,10 +776,8 @@ function applyCalendarState(isMinimized) {
 if (toggleBtn && calendar) {
     const savedMinimized = getSavedCalendarState();
 
-    // اعمال وضعیت ذخیره‌شده بدون transition
     applyCalendarState(savedMinimized);
 
-    // بعد از اینکه وضعیت اولیه اعمال شد، transition را دوباره فعال کن
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             document.body.classList.remove('no-calendar-transition');
@@ -548,11 +792,12 @@ if (toggleBtn && calendar) {
     });
 }
 
-
-// Initial calendar render
 renderCalendar(currentJy, currentJm);
 
 
+// ----------------------
+//     WINDOW CHECK
+// ----------------------
 function checkWindowMaximized() {
     if (window.outerWidth >= window.screen.availWidth * 0.99) {
         document.body.classList.add('is-maximized-window');

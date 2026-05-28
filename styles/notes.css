@@ -61,21 +61,36 @@
 }
  */
 
-.task-item {
+.note-task {
     display: flex;
     align-items: center;
     margin-bottom: 8px;
     gap: 8px;
     padding: 4px;
-    transition: background 0.2s;
+    /* transition: background 0.2s; */
 }
 
-/* .task-item.drag-over {
+.note-task:hover {
+    background-color: rgba(255, 255, 255, 0.199);
+}
+
+.note-task.drag-over {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 4px;
-} */
+}
 
-.task-input,
+.dragging-task {
+    opacity: 0.5;
+    outline: 3px rgb(0, 0, 0);
+}
+
+.note-task.drag-over {
+    outline: 2px dashed rgba(0, 0, 0, 0.35);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+
+.note-task-text,
 .note-title {
     border: none;
     background: transparent;
@@ -85,8 +100,15 @@
     resize: none;
     overflow: hidden;
     word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+
     box-sizing: border-box;
+
+    unicode-bidi: plaintext;
+    text-align: start;
 }
+
 
 .note-title {
     font-size: 1.7em;
@@ -97,14 +119,11 @@
     line-height: 1.5;
 }
 
-.task-input {
+.note-task-text {
     font-size: 1.3em;
     /* font-weight: regular; */
-    /* Increase task font size */
     line-height: 1.3;
-    /* Decrease line height to prevent false height */
     padding: 2px 0 2px 8px;
-    /* Adjust padding and create slight distance from checkbox */
     margin: 0;
 }
 
@@ -134,31 +153,21 @@ textarea {
     width: 100px;
     height: 30px;
     left: 50%;
-    /* Keep tape completely inside the frame to avoid cutting in columns (based on previous fix) */
     top: -20px;
 
-    /* Slight rotation for a more natural look */
     transform: translateX(-50%) rotate(-2deg);
 
-    /* Masking tape look: semi-transparent with a glassy effect */
     background-color: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(2px);
-    /* This line gives the tape a matte finish */
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
-    /* Create jagged and irregular edges on the left and right */
     clip-path: polygon(0% 5%, 4% 15%, 0% 25%, 5% 40%, 0% 55%, 6% 70%, 1% 85%, 5% 100%,
-            /* Left edge */
             95% 100%, 100% 85%, 94% 70%, 100% 55%, 95% 40%, 100% 25%, 96% 15%, 100% 5%,
-            /* Right edge */
-            95% 0%, 5% 0%
-            /* Top edge */
-        );
+            95% 0%, 5% 0%);
 
     z-index: 10;
 }
 
-/* Tape texture */
 .tape::before {
     content: "";
     position: absolute;

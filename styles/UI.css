@@ -15,6 +15,7 @@
     -webkit-user-select: none;
     transition: 0.3s;
 }
+
 #add-note-btn:hover {
     background-color: #ffb648;
 }
@@ -47,7 +48,7 @@
     transform: scale(0.9) rotate(-10deg);
 }
 
-.scribbled .task-input {
+.scribbled .note-task-text {
     text-decoration: line-through;
     text-decoration-color: rgba(25, 25, 25, 0.8);
     text-decoration-thickness: 3px;
@@ -117,4 +118,3 @@
     cursor: grabbing;
     transform: scale(0.9) rotate(-10deg);
 }
-
