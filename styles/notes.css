@@ -89,6 +89,23 @@
     background: rgba(255, 255, 255, 0.25);
 }
 
+.note-task-text.locked-task {
+    cursor: grab;
+    user-select: none;
+}
+
+.note-task-text.locked-task:focus {
+    outline: none;
+}
+
+.note-task-text.editing-task {
+    cursor: text;
+    user-select: text;
+}
+
+.note-task.dragging-task .note-task-text.locked-task {
+    cursor: grabbing;
+}
 
 .note-task-text,
 .note-title {

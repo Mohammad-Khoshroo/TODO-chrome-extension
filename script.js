@@ -2,6 +2,15 @@ let msnry;
 let currentDragType = null;
 let draggedTaskInfo = null;
 let draggedNoteId = null;
+let noteLayouts = {};
+const taskContextMenu = document.getElementById("task-context-menu");
+let contextTaskInfo = null;
+
+function formatJalaliKey(jy, jm, jd) {
+    const mm = String(jm).padStart(2, "0");
+    const dd = String(jd).padStart(2, "0");
+    return `${jy}-${mm}-${dd}`;
+}
 
 const persianNumbers = [/0/g, /1/g, /2/g, /3/g, /4/g, /5/g, /6/g, /7/g, /8/g, /9/g];
 const arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
@@ -137,6 +146,44 @@ function autoResizeTextareas() {
     });
 }
 
+function createRandomNoteLayout(note) {
+    let taskOffset = 0;
+    let pageIndex = 0;
+    let currentSign = Math.random() > 0.5 ? 1 : -1;
+    const pageRotations = [];
+
+    do {
+        const tasksLimit = pageIndex === 0 ? 4 : 5;
+        const pageTasks = note.tasks.slice(taskOffset, taskOffset + tasksLimit);
+
+        let rotationAngle;
+
+        if (Math.random() < 0.05) {
+            rotationAngle = 0;
+        } else {
+            const randomMagnitude = Math.random() * 2 + 1;
+            rotationAngle = randomMagnitude * currentSign;
+        }
+
+        if (rotationAngle !== 0) {
+            currentSign *= -1;
+        }
+
+        pageRotations.push(rotationAngle);
+
+        taskOffset += pageTasks.length;
+        pageIndex++;
+    } while (taskOffset < note.tasks.length);
+
+    return {
+        wrapperRotation: (Math.random() * 6) - 3,
+        marginTop: Math.random() * 15 + 40,
+        marginLeft: (Math.random() * 10) - 5,
+        pageRotations
+    };
+}
+
+
 function renderAllNotes() {
     fridgeContainer.innerHTML = '';
 
@@ -151,13 +198,31 @@ function renderAllNotes() {
         wrapper.className = 'note-wrapper';
         wrapper.draggable = true;
 
-        wrapper.style.transform = `rotate(${(Math.random() * 6) - 3}deg)`;
-        wrapper.style.marginTop = `${Math.random() * 15 + 40}px`;
-        wrapper.style.marginLeft = `${(Math.random() * 10) - 5}px`;
+        if (!noteLayouts[note.id]) {
+            noteLayouts[note.id] = createRandomNoteLayout(note);
+        }
+
+        const layout = noteLayouts[note.id];
+
+        // اگر تعداد صفحات تغییر کرد، layout را فقط برای همین reload دوباره بساز
+        const expectedPages = (() => {
+            if (note.tasks.length <= 4) return 1;
+            return 1 + Math.ceil((note.tasks.length - 4) / 5);
+        })();
+
+        if (layout.pageRotations.length !== expectedPages) {
+            noteLayouts[note.id] = createRandomNoteLayout(note);
+        }
+
+        const finalLayout = noteLayouts[note.id];
+
+        wrapper.style.transform = `rotate(${finalLayout.wrapperRotation}deg)`;
+        wrapper.style.marginTop = `${finalLayout.marginTop}px`;
+        wrapper.style.marginLeft = `${finalLayout.marginLeft}px`;
 
         let taskOffset = 0;
         let pageIndex = 0;
-        let currentSign = Math.random() > 0.5 ? 1 : -1;
+
 
         do {
             const tasksLimit = pageIndex === 0 ? 4 : 5;
@@ -165,20 +230,9 @@ function renderAllNotes() {
 
             const noteDiv = document.createElement('div');
 
-            let rotationAngle;
-
-            if (Math.random() < 0.05) {
-                rotationAngle = 0;
-            } else {
-                const randomMagnitude = Math.random() * 2 + 1;
-                rotationAngle = randomMagnitude * currentSign;
-            }
-
+            const rotationAngle = finalLayout.pageRotations[pageIndex] ?? 0;
             noteDiv.style.transform = `rotate(${rotationAngle}deg)`;
 
-            if (rotationAngle !== 0) {
-                currentSign *= -1;
-            }
 
             noteDiv.className = `note-paper ${note.colorClass} ${activeNoteIndex === noteIndex ? 'active' : ''}`;
             noteDiv.dataset.noteIndex = noteIndex;
@@ -198,10 +252,11 @@ function renderAllNotes() {
                             ${task.checked ? "checked" : ""}>
                             
                         <textarea 
-                            class="note-task-text" 
+                            class="note-task-text ${task.text.trim() ? 'locked-task' : 'editing-task'}" 
                             rows="1" 
                             draggable="false"
-                            placeholder="task. . .">${escapeHTML(task.text)}</textarea>
+                            placeholder="task. . ."
+                            ${task.text.trim() ? 'readonly' : ''}>${escapeHTML(task.text)}</textarea>
                     </li>
                 `;
             }).join('');
@@ -257,12 +312,16 @@ function renderAllNotes() {
 // ----------------------
 
 addNoteBtn.addEventListener('click', () => {
-    notes.push({
+    const newNote = {
         id: 'note_' + Date.now(),
         title: '',
         colorClass: getRandomColorClass(),
         tasks: [{ text: '', checked: false, scribbled: false }]
-    });
+    };
+
+    newNote.layout = createRandomNoteLayout(newNote);
+
+    notes.push(newNote);
 
     activeNoteIndex = notes.length - 1;
     saveNotes();
@@ -314,6 +373,107 @@ fridgeContainer.addEventListener('change', (e) => {
     }
 });
 
+fridgeContainer.addEventListener("contextmenu", (e) => {
+    const taskEl = e.target.closest(".note-task");
+    if (!taskEl) return;
+
+    const notePaper = taskEl.closest(".note-paper");
+    if (!notePaper) return;
+
+    e.preventDefault();
+
+    const noteIndex = Number(notePaper.dataset.noteIndex);
+    const taskIndex = Number(taskEl.dataset.taskIndex);
+
+    openTaskContextMenu(e.clientX, e.clientY, noteIndex, taskIndex);
+});
+
+fridgeContainer.addEventListener("blur", (e) => {
+    if (!e.target.classList.contains("note-task-text")) return;
+
+    const taskText = e.target;
+
+    if (taskText.value.trim()) {
+        taskText.setAttribute("readonly", "readonly");
+        taskText.classList.add("locked-task");
+        taskText.classList.remove("editing-task");
+    }
+}, true);
+
+taskContextMenu.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn || !contextTaskInfo) return;
+
+    const { noteIndex, taskIndex } = contextTaskInfo;
+    const action = btn.dataset.action;
+
+    const note = notes[noteIndex];
+    const task = note?.tasks?.[taskIndex];
+
+    if (!task) {
+        closeTaskContextMenu();
+        return;
+    }
+
+    if (action === "edit") {
+        closeTaskContextMenu();
+
+        setTimeout(() => {
+            const notePaper = document.querySelector(`.note-paper[data-note-index="${noteIndex}"]`);
+            if (!notePaper) return;
+
+            const taskEl = notePaper.querySelector(`.note-task[data-task-index="${taskIndex}"]`);
+            const taskText = taskEl?.querySelector(".note-task-text");
+            if (!taskText) return;
+
+            taskText.removeAttribute("readonly");
+            taskText.classList.remove("locked-task");
+            taskText.classList.add("editing-task");
+            taskText.focus();
+
+            const len = taskText.value.length;
+            taskText.setSelectionRange(len, len);
+        }, 0);
+
+        return;
+    }
+
+    if (action === "toggle-scribble") {
+        task.scribbled = !task.scribbled;
+        task.scribbledAt = task.scribbled ? Date.now() : null;
+
+        saveNotes();
+        renderAllNotes();
+        closeTaskContextMenu();
+        return;
+    }
+
+    if (action === "delete") {
+        note.tasks.splice(taskIndex, 1);
+
+        saveNotes();
+        renderAllNotes();
+        closeTaskContextMenu();
+        return;
+    }
+});
+document.addEventListener("click", (e) => {
+    if (!taskContextMenu) return;
+    if (taskContextMenu.classList.contains("hidden")) return;
+
+    if (!e.target.closest("#task-context-menu")) {
+        closeTaskContextMenu();
+    }
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        closeTaskContextMenu();
+    }
+});
+
+window.addEventListener("resize", closeTaskContextMenu);
+window.addEventListener("scroll", closeTaskContextMenu, true);
 
 // انتخاب note فعال
 document.addEventListener("mousedown", (e) => {
@@ -410,13 +570,29 @@ eraser.addEventListener("dragstart", (e) => {
 
 
 fridgeContainer.addEventListener("dragstart", (e) => {
-    if (
-        e.target.closest(".note-task-text") ||
-        e.target.closest(".note-title") ||
-        e.target.closest(".task-checkbox")
-    ) {
+    const taskText = e.target.closest(".note-task-text");
+    const noteTitle = e.target.closest(".note-title");
+    const checkbox = e.target.closest(".task-checkbox");
+
+    // از روی عنوان نوت یا چک‌باکس نباید drag شروع شود
+    if (noteTitle || checkbox) {
         e.preventDefault();
         return;
+    }
+
+    // اگر روی textarea تسک هستیم
+    if (taskText) {
+        const isLocked =
+            taskText.classList.contains("locked-task") ||
+            taskText.hasAttribute("readonly");
+
+        // اگر تسک در حالت ادیت است، drag ممنوع
+        if (!isLocked) {
+            e.preventDefault();
+            return;
+        }
+
+        // اگر locked است، اجازه بده drag از خود تسک شروع شود
     }
 
     const taskEl = e.target.closest(".note-task");
@@ -642,16 +818,26 @@ setInterval(cleanupOldScribbles, 5 * 60 * 1000);
 // ----------------------
 loadNotes((loaded) => {
     notes = loaded;
+    let changed = false;
 
     notes.forEach(note => {
         if (!note.id) {
             note.id = 'note_' + Date.now() + '_' + Math.random();
+            changed = true;
         }
 
         if (!Array.isArray(note.tasks)) {
             note.tasks = [];
+            changed = true;
+        }
+
+        if (!note.layout) {
+            note.layout = createRandomNoteLayout(note);
+            changed = true;
         }
     });
+
+    if (changed) saveNotes();
 
     cleanupOldScribbles();
     cleanupTrash();
@@ -808,3 +994,30 @@ function checkWindowMaximized() {
 
 window.addEventListener('resize', checkWindowMaximized);
 checkWindowMaximized();
+
+function openTaskContextMenu(x, y, noteIndex, taskIndex) {
+    if (!taskContextMenu) return;
+
+    contextTaskInfo = { noteIndex, taskIndex };
+
+    taskContextMenu.classList.remove("hidden");
+    taskContextMenu.style.left = `${x}px`;
+    taskContextMenu.style.top = `${y}px`;
+
+    const menuRect = taskContextMenu.getBoundingClientRect();
+
+    if (menuRect.right > window.innerWidth) {
+        taskContextMenu.style.left = `${window.innerWidth - menuRect.width - 8}px`;
+    }
+
+    if (menuRect.bottom > window.innerHeight) {
+        taskContextMenu.style.top = `${window.innerHeight - menuRect.height - 8}px`;
+    }
+}
+
+function closeTaskContextMenu() {
+    if (!taskContextMenu) return;
+
+    taskContextMenu.classList.add("hidden");
+    contextTaskInfo = null;
+}

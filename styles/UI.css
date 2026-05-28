@@ -118,3 +118,35 @@
     cursor: grabbing;
     transform: scale(0.9) rotate(-10deg);
 }
+
+.task-context-menu {
+    position: fixed;
+    z-index: 9999;
+    min-width: 160px;
+    background: #fffdf7;
+    border: 1px solid #c8b98f;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.task-context-menu.hidden {
+    display: none;
+}
+
+.task-context-menu button {
+    all: unset;
+    display: block;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: right;
+    font-family: 'Vazirmatn', 'sans-serif';
+}
+
+.task-context-menu button:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
