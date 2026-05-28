@@ -1,3 +1,5 @@
+let msnry;
+
 const persianNumbers = [/O/g, /1/g, /2/g, /3/g, /4/g, /5/g, /6/g, /7/g, /8/g, /9/g];
 const arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
 
@@ -176,7 +178,7 @@ function renderAllNotes() {
                 currentSign *= -1;
             }
 
-            noteDiv.className = `sticky-note ${note.colorClass} ${activeNoteIndex === noteIndex ? 'active' : ''}`;
+            noteDiv.className = `note-paper ${note.colorClass} ${activeNoteIndex === noteIndex ? 'active' : ''}`;
             noteDiv.dataset.noteIndex = noteIndex;
 
             // Build tasks HTML with absolute index
@@ -214,6 +216,21 @@ function renderAllNotes() {
 
     autoResizeTextareas();
     updateTrashIcon();
+
+    // ---> کدهای جدید برای چیدمان پینترستی <---
+    // کمی تاخیر می‌دهیم تا مرورگر المان‌ها را در DOM رندر کند
+    setTimeout(() => {
+        if (msnry) {
+            msnry.destroy(); // حذف چیدمان قبلی
+        }
+        msnry = new Masonry(fridgeContainer, {
+            itemSelector: '.note-wrapper',
+            gutter: 20, // فاصله بین یادداشت‌ها (به دلخواه تنظیم کنید)
+            fitWidth: true, // اگر می‌خواهید کل گرید در وسط صفحه قرار گیرد
+            transitionDuration: '0.2s' // انیمیشن مرتب شدن
+        });
+    }, 50);
+
 }
 
 
@@ -235,7 +252,7 @@ addNoteBtn.addEventListener('click', () => {
 });
 
 fridgeContainer.addEventListener('change', (e) => {
-    const noteEl = e.target.closest('.sticky-note');
+    const noteEl = e.target.closest('.note-paper');
     if (!noteEl) return;
 
     const noteIndex = +noteEl.dataset.noteIndex;
@@ -258,7 +275,7 @@ fridgeContainer.addEventListener('change', (e) => {
 });
 
 document.addEventListener("mousedown", (e) => {
-    const noteEl = e.target.closest(".sticky-note");
+    const noteEl = e.target.closest(".note-paper");
 
     // Click on note
     if (noteEl) {
@@ -266,7 +283,10 @@ document.addEventListener("mousedown", (e) => {
 
         if (newIndex !== activeNoteIndex) {
             activeNoteIndex = newIndex;
-            renderAllNotes();
+
+            document.querySelectorAll('.note-paper').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll(`.note-paper[data-note-index="${activeNoteIndex}"]`)
+                .forEach(el => el.classList.add('active'));
         }
         return;
     }
@@ -306,7 +326,7 @@ document.addEventListener("keydown", e => {
 
         setTimeout(() => {
             // Find all task inputs of the active note and focus on the last one
-            const inputs = document.querySelectorAll(`.note-wrapper .sticky-note[data-note-index="${activeNoteIndex}"] .task-input`);
+            const inputs = document.querySelectorAll(`.note-wrapper .note-paper[data-note-index="${activeNoteIndex}"] .task-input`);
             if (inputs.length > 0) inputs[inputs.length - 1].focus();
         }, 30);
     }
@@ -342,7 +362,7 @@ fridgeContainer.addEventListener("drop", (e) => {
     if (!taskItem) return;
 
     const dragType = e.dataTransfer.getData("type");
-    const noteIndex = +taskItem.closest(".sticky-note").dataset.noteIndex;
+    const noteIndex = +taskItem.closest(".note-paper").dataset.noteIndex;
     const taskIndex = +taskItem.dataset.taskIndex;
     const task = notes[noteIndex].tasks[taskIndex];
 
@@ -481,22 +501,53 @@ document.getElementById('nextBtn').addEventListener('click', () => {
 
 // --- Calendar Toggle Section ---
 
+// --- Calendar Toggle Section ---
+
 const toggleBtn = document.getElementById('calendar-btn');
 const calendar = document.getElementById('calendar');
 
-// Single event listener for toggling the calendar
-if (toggleBtn && calendar) {
-    toggleBtn.addEventListener('click', function () {
-        calendar.classList.toggle('minimized');
-        document.body.classList.toggle('calendar-closed');
+function getSavedCalendarState() {
+    return localStorage.getItem("calendarMinimized") === "true";
+}
 
-        if (calendar.classList.contains('minimized')) {
-            toggleBtn.innerText = '+ نمایش تقویم';
-        } else {
-            toggleBtn.innerText = '− بستن تقویم';
-        }
+function saveCalendarState(isMinimized) {
+    localStorage.setItem("calendarMinimized", String(isMinimized));
+
+    if (isExtension) {
+        chrome.storage.local.set({ calendarMinimized: isMinimized });
+    }
+}
+
+function applyCalendarState(isMinimized) {
+    calendar.classList.toggle('minimized', isMinimized);
+    document.body.classList.toggle('calendar-closed', isMinimized);
+
+    toggleBtn.innerText = isMinimized
+        ? '+ نمایش تقویم'
+        : '− بستن تقویم';
+}
+
+if (toggleBtn && calendar) {
+    const savedMinimized = getSavedCalendarState();
+
+    // اعمال وضعیت ذخیره‌شده بدون transition
+    applyCalendarState(savedMinimized);
+
+    // بعد از اینکه وضعیت اولیه اعمال شد، transition را دوباره فعال کن
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            document.body.classList.remove('no-calendar-transition');
+        });
+    });
+
+    toggleBtn.addEventListener('click', function () {
+        const isMinimized = !calendar.classList.contains('minimized');
+
+        applyCalendarState(isMinimized);
+        saveCalendarState(isMinimized);
     });
 }
+
 
 // Initial calendar render
 renderCalendar(currentJy, currentJm);

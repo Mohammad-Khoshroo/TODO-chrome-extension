@@ -10,11 +10,12 @@
     <link href="vazirmatn/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="style.css">
     <script src="jallali/dist/jalaali.min.js"></script>
-
+    <script src="js/masonry.js"></script>
 </head>
 
-<body>
+<body class="no-calendar-transition">
 
+    <!-- CALENDAR -->
     <div class="Calendar" id="calendar">
         <button class="toggleCalendarBtn" id="calendar-btn">− بستن تقویم</button>
         <div class="header">
@@ -34,18 +35,23 @@
         <div class="days" id="daysContainer"></div>
     </div>
 
+    <!-- UI -->
     <div id="trash-bin">
         <img id="trash" src="images/trash-bin.ico" alt="trash-bin" width="70" height="70">
     </div>
+
     <div id="eraser" draggable="true" title="Drag over task to delete instantly">
         <img src="images/eraser.ico" alt="eraser" width="45" height="45">
     </div>
+
     <div id="pencil" class="pencil" draggable="true" title="Drag to scribble!">
         <img src="images/pencil.ico" alt="pencil" width="45" height="45">
     </div>
+
     <button id="add-note-btn">Add Note +</button>
 
     <div id="container"></div>
+    <!-- END UI -->
 
     <script src="script.js"></script>
 

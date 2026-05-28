@@ -1,26 +1,5 @@
-/* ==========================================
-   2. LAYOUT & FIXED TOOLS (UI Controls)
-   ========================================== */
-#container {
-    display: block;
-    column-width: 260px;
-    column-gap: 20px;
-    padding: 20px 20px 100px 20px;
-    user-select: none;
-}
-
-#add-note-btn,
-#pencil,
-#eraser,
-#trash-bin {
-    position: fixed;
-    z-index: 1000;
-    user-select: none;
-    -webkit-user-select: none;
-    transition: transform 0.2s, opacity 0.2s;
-}
-
 #add-note-btn {
+    position: fixed;
     bottom: 20px;
     right: 20px;
     padding: 15px 20px;
@@ -28,28 +7,65 @@
     color: white;
     border: none;
     border-radius: 50px;
+    font-size: 16px;
+    cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: 0.3s;
+}
+#add-note-btn:hover {
+    background-color: #ffb648;
+}
+
+#container {
+    display: block;
+    column-width: 260px;
+    padding: 20px;
+    padding-bottom: 100px;
+    overflow: visible;
+    user-select: none;
 }
 
 #pencil {
-    bottom: 80px;
+    position: fixed;
+    bottom: 65px;
     right: 25px;
     font-size: 40px;
     cursor: grab;
+    user-select: none;
+    z-index: 1000;
+    filter: drop-shadow(2px 4px 4px rgba(0, 0, 0, 0.4));
+    transition: transform 0.2s;
+    /* Prevent text selection */
+    -webkit-user-select: none;
 }
 
-#eraser {
-    bottom: 80px;
-    right: 80px;
-    font-size: 40px;
-    cursor: grab;
+#pencil:active {
+    cursor: grabbing;
+    transform: scale(0.9) rotate(-10deg);
+}
+
+.scribbled .task-input {
+    text-decoration: line-through;
+    text-decoration-color: rgba(25, 25, 25, 0.8);
+    text-decoration-thickness: 3px;
+    text-decoration-style: wavy;
+    opacity: 0.6;
 }
 
 #trash-bin {
+    position: fixed;
     bottom: 20px;
     left: 20px;
     font-size: 40px;
     opacity: 0.8;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 1000;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 #trash-bin.drag-over {
@@ -57,19 +73,48 @@
     transform: scale(1.2);
 }
 
-@keyframes shake {
+#trash-bin:active {
+    cursor: grabbing;
+    animation: shake 0.5s infinite;
+}
 
-    0%,
-    100% {
-        transform: rotate(0deg);
+@keyframes shake {
+    0% {
+        transform: rotate(-6deg);
     }
 
-    25%,
-    75% {
+    25% {
         transform: rotate(6deg);
     }
 
     50% {
         transform: rotate(-6deg);
     }
+
+    75% {
+        transform: rotate(6deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
 }
+
+#eraser {
+    position: fixed;
+    bottom: 65px;
+    right: 80px;
+    font-size: 40px;
+    cursor: grab;
+    z-index: 1000;
+    filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+    transition: transform 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#eraser:active {
+    cursor: grabbing;
+    transform: scale(0.9) rotate(-10deg);
+}
+

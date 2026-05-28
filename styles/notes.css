@@ -1,5 +1,24 @@
-.sticky-note {
-    break-inside: avoid;
+.color-0 {
+    --note-color: #f9e426;
+    background-color: var(--note-color);
+}
+
+.color-1 {
+    --note-color: #4bcf52;
+    background-color: var(--note-color);
+}
+
+.color-2 {
+    --note-color: #429ee9;
+    background-color: var(--note-color);
+}
+
+.color-3 {
+    --note-color: #e74747;
+    background-color: var(--note-color);
+}
+
+.note-paper {
     page-break-inside: avoid;
     width: 240px;
     min-height: 240px;
@@ -9,27 +28,22 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    /* Color applied via classes and variables */
     box-shadow: 0px 10px 15px -5px rgba(0, 0, 0, 0.3);
     border-radius: 0px 0px 15px 5px / 0px 0px 5px 15px;
     transition: all 0.2s;
     background-image: none;
-    -webkit-column-break-inside: avoid;
-    /* Add this for webkit browsers */
-
     display: inline-flex;
-    /* Use inline-flex instead of flex */
     transform: translateZ(0);
-    /* This creates a new layer and prevents the tape from being clipped */
 }
 
-.sticky-note.active {
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.5), 5px 8px 15px rgba(0, 0, 0, 0.3);
+/* 
+.note-paper.active {
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.9), 5px 8px 15px rgba(0, 0, 0, 0.7);
     transform: scale(1.02) !important;
     z-index: 10;
-}
+} */
 
-.sticky-note.multi-page {
+.note-paper.multi-page {
     background-image: repeating-linear-gradient(to bottom,
             transparent 0px,
             transparent 235px,
@@ -39,12 +53,13 @@
     box-shadow: 0px 15px 20px -5px rgba(0, 0, 0, 0.4);
 }
 
-.sticky-note.crumpled {
+/* 
+.note-paper.crumpled {
     box-shadow: inset 2px 2px 10px rgba(0, 0, 0, 0.1), inset -2px -2px 10px rgba(0, 0, 0, 0.1), 0px 10px 15px -5px rgba(0, 0, 0, 0.3);
     border-radius: 5px 3px 8px 4px;
     transform: rotate(2deg) scale(0.98);
 }
-
+ */
 
 .task-item {
     display: flex;
@@ -55,10 +70,10 @@
     transition: background 0.2s;
 }
 
-.task-item.drag-over {
+/* .task-item.drag-over {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 4px;
-}
+} */
 
 .task-input,
 .note-title {
@@ -174,7 +189,7 @@ textarea {
 }
 
 /* Maintain the original appearance and fixed size of each paper */
-.note-wrapper .sticky-note {
+.note-wrapper .note-paper {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     position: relative;
@@ -185,7 +200,7 @@ textarea {
 }
 
 /* Adjust secondary papers to go slightly under the top paper */
-.note-wrapper .sticky-note.chained-note {
+.note-wrapper .note-paper.chained-note {
     margin-top: -20px !important;
     /* Amount to go under the top paper */
 }
@@ -198,10 +213,10 @@ textarea {
 }
 
 /* Use box-shadow for focus/selection state */
-.note-wrapper .sticky-note:focus-within,
-.sticky-note:focus-within,
-.sticky-note.selected,
-.note-wrapper.selected .sticky-note {
+.note-wrapper .note-paper:focus-within,
+.note-paper:focus-within,
+.note-paper.selected,
+.note-wrapper.selected .note-paper {
     /* First shadow for selection state (blue) and second is the previous depth shadow */
     box-shadow: 0 0 0 3px #4a90e2, 2px 2px 10px rgba(0, 0, 0, 0.2) !important;
 }

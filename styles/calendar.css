@@ -19,6 +19,30 @@
     height: 38px !important;
     overflow: hidden !important;
 }
+.no-calendar-transition #calendar,
+.no-calendar-transition #calendar * {
+    transition: none !important;
+}
+
+
+.toggleCalendarBtn {
+    width: 100%;
+    background-color: #f3f4f6;
+    border: none;
+    padding: 10px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    /* transition: padding-up 0.3s ease; */
+    color: #555;
+}
+
+.toggleCalendarBtn:hover {
+    background-color: #e2e8f0;
+}
+
 
 .header {
     background-color: #4f46e5;
@@ -108,20 +132,3 @@
 }
 
 
-.toggleCalendarBtn {
-    width: 100%;
-    background-color: #f3f4f6;
-    border: none;
-    padding: 10px;
-    font-family: 'Vazirmatn', sans-serif;
-    font-weight: bold;
-    cursor: pointer;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    /* transition: padding-up 0.3s ease; */
-    color: #555;
-}
-
-.toggleCalendarBtn:hover {
-    background-color: #e2e8f0;
-}
