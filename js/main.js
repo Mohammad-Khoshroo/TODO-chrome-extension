@@ -74,7 +74,7 @@ function saveNotes() {
 const fridgeContainer = document.getElementById('container');
 const addNoteBtn = document.getElementById('add-note-btn');
 const trashBin = document.getElementById('trash-bin');
-const magneticPen = document.getElementById('pencil');
+const magneticPen = document.getElementById('pen');
 const eraser = document.getElementById('eraser');
 const trashIcon = document.getElementById("trash");
 
