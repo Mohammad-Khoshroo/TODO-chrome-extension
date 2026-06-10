@@ -423,24 +423,43 @@ taskContextMenu.addEventListener("click", (e) => {
         closeTaskContextMenu();
 
         setTimeout(() => {
-            const notePaper = document.querySelector(`.note-paper[data-note-index="${noteIndex}"]`);
-            if (!notePaper) return;
+            const notePapers = document.querySelectorAll(
+                `.note-paper[data-note-index="${noteIndex}"]`
+            );
 
-            const taskEl = notePaper.querySelector(`.note-task[data-task-index="${taskIndex}"]`);
-            const taskText = taskEl?.querySelector(".note-task-text");
+            let taskEl = null;
+
+            notePapers.forEach(notePaper => {
+                const foundTask = notePaper.querySelector(
+                    `.note-task[data-task-index="${taskIndex}"]`
+                );
+
+                if (foundTask) {
+                    taskEl = foundTask;
+                }
+            });
+
+            if (!taskEl) return;
+
+            const taskText = taskEl.querySelector(".note-task-text");
             if (!taskText) return;
 
             taskText.removeAttribute("readonly");
             taskText.classList.remove("locked-task");
             taskText.classList.add("editing-task");
+
             taskText.focus();
 
             const len = taskText.value.length;
             taskText.setSelectionRange(len, len);
+
+            taskText.style.height = "auto";
+            taskText.style.height = taskText.scrollHeight + "px";
         }, 0);
 
         return;
     }
+
 
     if (action === "toggle-scribble") {
         task.scribbled = !task.scribbled;

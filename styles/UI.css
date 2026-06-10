@@ -29,7 +29,7 @@
     user-select: none;
 }
 
-#pencil {
+#pen {
     position: fixed;
     bottom: 65px;
     right: 25px;
@@ -43,7 +43,7 @@
     -webkit-user-select: none;
 }
 
-#pencil:active {
+#pen:active {
     cursor: grabbing;
     transform: scale(0.9) rotate(-10deg);
 }

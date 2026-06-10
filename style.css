@@ -4,7 +4,7 @@
 
 @font-face {
     font-family: 'MyCustomEnglishFont';
-    src: url('fonts/Playwrite/PlaywriteGBJ-VariableFont_wght.ttf') format('truetype');
+    src: url('fonts/Party-Script.otf') format('opentype');
 }
 
 @font-face {
@@ -17,7 +17,7 @@ body {
     background-image:
         radial-gradient(circle at 50% 0%, #ffffff66 0%, transparent 70%),
         repeating-linear-gradient(45deg, transparent, transparent 2px, #ffffff11 2px, #ffffff11 4px);
-    font-family: 'MyCustomPersianFont', 'MyCustomEnglishFont', Tahoma, sans-serif;
+    font-family: 'MyCustomEnglishFont', 'MyCustomPersianFont', Tahoma, sans-serif;
     margin: 0;
     padding: 30px;
     padding-top: 45px;

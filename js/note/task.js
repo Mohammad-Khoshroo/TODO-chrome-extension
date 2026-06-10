@@ -1,222 +1,243 @@
-import {
-    notes,
-    currentDragType,
-    draggedTaskInfo,
-    setCurrentDragType,
-    setDraggedTaskInfo,
-    setDraggedNoteId
-} from "../main/state.js";
+fridgeContainer.addEventListener("blur", (e) => {
+    if (!e.target.classList.contains("note-task-text")) return;
 
-import { saveNotes } from "../shared/storage.js";
-import { renderAllNotes } from "./note.js";
+    const taskText = e.target;
 
-const fridgeContainer = document.getElementById('container');
+    if (taskText.value.trim()) {
+        taskText.setAttribute("readonly", "readonly");
+        taskText.classList.add("locked-task");
+        taskText.classList.remove("editing-task");
+    }
+}, true);
 
-export function initTaskEvents() {
-    fridgeContainer.addEventListener('input', (e) => {
-        const noteEl = e.target.closest('.note-paper');
-        if (!noteEl) return;
+// Ctrl + Enter برای اضافه کردن تسک
+document.addEventListener("keydown", e => {
+    if (e.ctrlKey && e.key === "Enter" && activeNoteIndex != null) {
+        notes[activeNoteIndex].tasks.push({
+            text: "",
+            checked: false,
+            scribbled: false,
+            deadline: null
+        });
 
-        const noteIndex = Number(noteEl.dataset.noteIndex);
+        saveNotes();
+        renderAllNotes();
 
-        if (e.target.classList.contains('note-title')) {
-            notes[noteIndex].title = e.target.value;
-            e.target.style.height = 'auto';
-            e.target.style.height = e.target.scrollHeight + 'px';
-            saveNotes();
-        }
+        setTimeout(() => {
+            const inputs = document.querySelectorAll(
+                `.note-paper[data-note-index="${activeNoteIndex}"] .note-task-text`
+            );
 
-        if (e.target.classList.contains('note-task-text')) {
-            const taskEl = e.target.closest('.note-task');
-            if (!taskEl) return;
+            if (inputs.length > 0) {
+                inputs[inputs.length - 1].focus();
+            }
+        }, 30);
+    }
+});
 
-            const taskIndex = Number(taskEl.dataset.taskIndex);
-            notes[noteIndex].tasks[taskIndex].text = e.target.value;
+// ----------------------
+//     DRAG & DROP CLEAN
+// ----------------------
+fridgeContainer.addEventListener("dragstart", (e) => {
+    const taskText = e.target.closest(".note-task-text");
+    const noteTitle = e.target.closest(".note-title");
+    const checkbox = e.target.closest(".task-checkbox");
 
-            e.target.style.height = 'auto';
-            e.target.style.height = e.target.scrollHeight + 'px';
+    if (noteTitle || checkbox) {
+        e.preventDefault();
+        return;
+    }
 
-            saveNotes();
-        }
-    });
+    if (taskText) {
+        const isLocked =
+            taskText.classList.contains("locked-task") ||
+            taskText.hasAttribute("readonly");
 
-    fridgeContainer.addEventListener('change', (e) => {
-        const noteEl = e.target.closest('.note-paper');
-        if (!noteEl) return;
-
-        const noteIndex = Number(noteEl.dataset.noteIndex);
-
-        if (e.target.classList.contains('task-checkbox')) {
-            const taskEl = e.target.closest('.note-task');
-            if (!taskEl) return;
-
-            const taskIndex = Number(taskEl.dataset.taskIndex);
-            notes[noteIndex].tasks[taskIndex].checked = e.target.checked;
-            saveNotes();
-        }
-    });
-
-    fridgeContainer.addEventListener("blur", (e) => {
-        if (!e.target.classList.contains("note-task-text")) return;
-
-        const taskText = e.target;
-
-        if (taskText.value.trim()) {
-            taskText.setAttribute("readonly", "readonly");
-            taskText.classList.add("locked-task");
-            taskText.classList.remove("editing-task");
-        }
-    }, true);
-
-    fridgeContainer.addEventListener("dragstart", (e) => {
-        const taskText = e.target.closest(".note-task-text");
-        const noteTitle = e.target.closest(".note-title");
-        const checkbox = e.target.closest(".task-checkbox");
-
-        if (noteTitle || checkbox) {
+        if (!isLocked) {
             e.preventDefault();
             return;
         }
+    }
 
-        if (taskText) {
-            const isLocked =
-                taskText.classList.contains("locked-task") ||
-                taskText.hasAttribute("readonly");
+    const taskEl = e.target.closest(".note-task");
 
-            if (!isLocked) {
-                e.preventDefault();
-                return;
-            }
-        }
-
-        const taskEl = e.target.closest(".note-task");
-        if (!taskEl) return;
-
+    if (taskEl) {
         const notePaper = taskEl.closest(".note-paper");
         if (!notePaper) return;
 
         const noteIndex = Number(notePaper.dataset.noteIndex);
         const taskIndex = Number(taskEl.dataset.taskIndex);
 
-        setCurrentDragType("task");
-        setDraggedTaskInfo({ noteIndex, taskIndex });
-        setDraggedNoteId(null);
+        currentDragType = "task";
+        draggedTaskInfo = { noteIndex, taskIndex };
+        draggedNoteId = null;
 
         e.dataTransfer.setData("text/plain", "task");
         e.dataTransfer.effectAllowed = "move";
 
         taskEl.classList.add("dragging-task");
-    });
+        return;
+    }
 
-    fridgeContainer.addEventListener("dragover", (e) => {
-        const taskItem = e.target.closest(".note-task");
-        if (!taskItem) return;
+    const wrapper = e.target.closest(".note-wrapper");
 
-        if (!["task", "pen", "eraser"].includes(currentDragType)) return;
+    if (wrapper) {
+        const notePaper = wrapper.querySelector(".note-paper");
+        if (!notePaper) return;
 
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
+        const noteIndex = Number(notePaper.dataset.noteIndex);
+        const note = notes[noteIndex];
+        if (!note) return;
 
-        document.querySelectorAll(".note-task.drag-over").forEach(el => {
-            if (el !== taskItem) {
-                el.classList.remove("drag-over");
-            }
-        });
-
-        taskItem.classList.add("drag-over");
-    });
-
-    fridgeContainer.addEventListener("dragleave", (e) => {
-        const taskItem = e.target.closest(".note-task");
-        if (!taskItem) return;
-
-        const related = e.relatedTarget;
-
-        if (related && taskItem.contains(related)) {
-            return;
+        if (!note.id) {
+            note.id = 'note_' + Date.now() + '_' + Math.random();
+            saveNotes();
         }
 
-        taskItem.classList.remove("drag-over");
+        currentDragType = "note";
+        draggedTaskInfo = null;
+        draggedNoteId = note.id;
+
+        e.dataTransfer.setData("text/plain", "note");
+        e.dataTransfer.effectAllowed = "move";
+
+        wrapper.classList.add("dragging-note");
+    }
+});
+
+document.addEventListener("dragend", () => {
+    document.querySelectorAll(".dragging-task").forEach(el => {
+        el.classList.remove("dragging-task");
     });
 
-    fridgeContainer.addEventListener("drop", (e) => {
-        const targetTaskEl = e.target.closest(".note-task");
-        if (!targetTaskEl) return;
+    document.querySelectorAll(".dragging-note").forEach(el => {
+        el.classList.remove("dragging-note");
+    });
 
-        if (!["task", "pen", "eraser"].includes(currentDragType)) return;
+    document.querySelectorAll(".note-task.drag-over").forEach(el => {
+        el.classList.remove("drag-over");
+    });
 
-        e.preventDefault();
-        e.stopPropagation();
+    trashBin.classList.remove("drag-over");
 
-        document.querySelectorAll(".note-task.drag-over").forEach(el => {
+    currentDragType = null;
+    draggedTaskInfo = null;
+    draggedNoteId = null;
+});
+
+fridgeContainer.addEventListener("dragover", (e) => {
+    // ۱. اگر درگ مربوط به ما نیست کلاً خارج شو
+    if (!["task", "pen", "eraser"].includes(currentDragType)) return;
+
+    // ۲. حذف علامت ممنوع برای این ابزارها در کل محدوده یخچال
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+
+    // ۳. پیدا کردن تسک زیر موس
+    const taskItem = e.target.closest(".note-task");
+
+    // ۴. مدیریت کلاس‌های بصری (هاور شدن)
+    document.querySelectorAll(".note-task.drag-over").forEach(el => {
+        if (el !== taskItem) {
             el.classList.remove("drag-over");
-        });
-
-        const targetNotePaper = targetTaskEl.closest(".note-paper");
-        if (!targetNotePaper) return;
-
-        const targetNoteIndex = Number(targetNotePaper.dataset.noteIndex);
-        const targetTaskIndex = Number(targetTaskEl.dataset.task-index || targetTaskEl.dataset.taskIndex);
-
-        if (currentDragType === "task") {
-            if (!draggedTaskInfo) return;
-
-            const sourceNoteIndex = draggedTaskInfo.noteIndex;
-            const sourceTaskIndex = draggedTaskInfo.taskIndex;
-
-            if (
-                Number.isNaN(sourceNoteIndex) ||
-                Number.isNaN(sourceTaskIndex) ||
-                Number.isNaN(targetNoteIndex) ||
-                Number.isNaN(targetTaskIndex)
-            ) {
-                return;
-            }
-
-            if (sourceNoteIndex === targetNoteIndex && sourceTaskIndex === targetTaskIndex) {
-                return;
-            }
-
-            const sourceTasks = notes[sourceNoteIndex]?.tasks;
-            const targetTasks = notes[targetNoteIndex]?.tasks;
-
-            if (!sourceTasks || !targetTasks) return;
-
-            const [movedTask] = sourceTasks.splice(sourceTaskIndex, 1);
-            if (!movedTask) return;
-
-            let insertIndex = targetTaskIndex;
-
-            if (sourceNoteIndex === targetNoteIndex && sourceTaskIndex < targetTaskIndex) {
-                insertIndex--;
-            }
-
-            targetTasks.splice(insertIndex, 0, movedTask);
-
-            saveNotes();
-            renderAllNotes();
-            return;
-        }
-
-        if (currentDragType === "pen") {
-            const task = notes[targetNoteIndex]?.tasks?.[targetTaskIndex];
-            if (!task) return;
-
-            task.scribbled = !task.scribbled;
-            task.scribbledAt = task.scribbled ? Date.now() : null;
-
-            saveNotes();
-            renderAllNotes();
-            return;
-        }
-
-        if (currentDragType === "eraser") {
-            if (!notes[targetNoteIndex]?.tasks) return;
-
-            notes[targetNoteIndex].tasks.splice(targetTaskIndex, 1);
-
-            saveNotes();
-            renderAllNotes();
         }
     });
-}
+
+    if (taskItem) {
+        taskItem.classList.add("drag-over");
+    }
+});
+
+fridgeContainer.addEventListener("dragleave", (e) => {
+    const taskItem = e.target.closest(".note-task");
+    if (!taskItem) return;
+
+    const related = e.relatedTarget;
+
+    if (related && taskItem.contains(related)) {
+        return;
+    }
+
+    taskItem.classList.remove("drag-over");
+});
+
+fridgeContainer.addEventListener("drop", (e) => {
+    const targetTaskEl = e.target.closest(".note-task");
+    if (!targetTaskEl) return;
+
+    if (!["task", "pen", "eraser"].includes(currentDragType)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    document.querySelectorAll(".note-task.drag-over").forEach(el => {
+        el.classList.remove("drag-over");
+    });
+
+    const targetNotePaper = targetTaskEl.closest(".note-paper");
+    if (!targetNotePaper) return;
+
+    const targetNoteIndex = Number(targetNotePaper.dataset.noteIndex);
+    const targetTaskIndex = Number(targetTaskEl.dataset.taskIndex);
+
+    if (currentDragType === "task") {
+        if (!draggedTaskInfo) return;
+
+        const sourceNoteIndex = draggedTaskInfo.noteIndex;
+        const sourceTaskIndex = draggedTaskInfo.taskIndex;
+
+        if (
+            Number.isNaN(sourceNoteIndex) ||
+            Number.isNaN(sourceTaskIndex) ||
+            Number.isNaN(targetNoteIndex) ||
+            Number.isNaN(targetTaskIndex)
+        ) {
+            return;
+        }
+
+        if (sourceNoteIndex === targetNoteIndex && sourceTaskIndex === targetTaskIndex) {
+            return;
+        }
+
+        const sourceTasks = notes[sourceNoteIndex]?.tasks;
+        const targetTasks = notes[targetNoteIndex]?.tasks;
+
+        if (!sourceTasks || !targetTasks) return;
+
+        const [movedTask] = sourceTasks.splice(sourceTaskIndex, 1);
+        if (!movedTask) return;
+
+        let insertIndex = targetTaskIndex;
+
+        if (sourceNoteIndex === targetNoteIndex && sourceTaskIndex < targetTaskIndex) {
+            insertIndex--;
+        }
+
+        targetTasks.splice(insertIndex, 0, movedTask);
+
+        saveNotes();
+        renderAllNotes();
+        return;
+    }
+
+    if (currentDragType === "pen") {
+        const task = notes[targetNoteIndex]?.tasks?.[targetTaskIndex];
+        if (!task) return;
+
+        task.scribbled = !task.scribbled;
+        task.scribbledAt = task.scribbled ? Date.now() : null;
+
+        saveNotes();
+        renderAllNotes();
+        return;
+    }
+
+    if (currentDragType === "eraser") {
+        if (!notes[targetNoteIndex]?.tasks) return;
+
+        notes[targetNoteIndex].tasks.splice(targetTaskIndex, 1);
+
+        saveNotes();
+        renderAllNotes();
+    }
+});

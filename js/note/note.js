@@ -1,32 +1,14 @@
-import {
-    notes,
-    activeNoteIndex,
-    noteLayouts,
-    msnry,
-    setMsnry,
-    setNoteLayout
-} from "../main/state.js";
-
-import { saveNotes } from "../shared/storage.js";
-import {
-    DELETE_THRESHOLD_MS,
-    ONE_DAY,
-    escapeHTML,
-    getRandomColorClass
-} from "../shared/utils.js";
-
-import { updateTrashIcon } from "../UI/trash-bin.js";
-
-const fridgeContainer = document.getElementById('container');
-
-export function autoResizeTextareas() {
+// ----------------------
+//       RENDERING
+// ----------------------
+function autoResizeTextareas() {
     document.querySelectorAll('.note-task-text, .note-title').forEach(t => {
         t.style.height = 'auto';
         t.style.height = t.scrollHeight + 'px';
     });
 }
 
-export function createRandomNoteLayout(note) {
+function createRandomNoteLayout(note) {
     let taskOffset = 0;
     let pageIndex = 0;
     let currentSign = Math.random() > 0.5 ? 1 : -1;
@@ -63,7 +45,7 @@ export function createRandomNoteLayout(note) {
     };
 }
 
-export function renderAllNotes() {
+function renderAllNotes() {
     fridgeContainer.innerHTML = '';
 
     notes.forEach((note, noteIndex) => {
@@ -78,7 +60,7 @@ export function renderAllNotes() {
         wrapper.draggable = true;
 
         if (!noteLayouts[note.id]) {
-            setNoteLayout(note.id, createRandomNoteLayout(note));
+            noteLayouts[note.id] = createRandomNoteLayout(note);
         }
 
         const layout = noteLayouts[note.id];
@@ -89,7 +71,7 @@ export function renderAllNotes() {
         })();
 
         if (layout.pageRotations.length !== expectedPages) {
-            setNoteLayout(note.id, createRandomNoteLayout(note));
+            noteLayouts[note.id] = createRandomNoteLayout(note);
         }
 
         const finalLayout = noteLayouts[note.id];
@@ -106,6 +88,7 @@ export function renderAllNotes() {
             const pageTasks = note.tasks.slice(taskOffset, taskOffset + tasksLimit);
 
             const noteDiv = document.createElement('div');
+
             const rotationAngle = finalLayout.pageRotations[pageIndex] ?? 0;
             noteDiv.style.transform = `rotate(${rotationAngle}deg)`;
 
@@ -119,11 +102,13 @@ export function renderAllNotes() {
                     <li class="note-task ${task.scribbled ? 'scribbled' : ''}" 
                         data-task-index="${absoluteIndex}" 
                         draggable="true">
+                        
                         <input 
                             type="checkbox" 
                             class="task-checkbox" 
                             draggable="false"
                             ${task.checked ? "checked" : ""}>
+                            
                         <textarea 
                             class="note-task-text ${task.text.trim() ? 'locked-task' : 'editing-task'}" 
                             rows="1" 
@@ -164,58 +149,28 @@ export function renderAllNotes() {
 
     autoResizeTextareas();
     updateTrashIcon();
+    renderCalendar(currentJy, currentJm);
+    updateDeadlinePanel(selectedDeadlineKey);
 
     setTimeout(() => {
         if (msnry) {
             msnry.destroy();
         }
 
-        const instance = new Masonry(fridgeContainer, {
+        msnry = new Masonry(fridgeContainer, {
             itemSelector: '.note-wrapper',
             gutter: 20,
             fitWidth: true,
             transitionDuration: '0.2s'
         });
-
-        setMsnry(instance);
     }, 50);
 }
 
-export function cleanupOldScribbles() {
-    let changed = false;
-    const now = Date.now();
+// ----------------------
+//          EVENTS
+// ----------------------
 
-    notes.forEach(note => {
-        const before = note.tasks.length;
-
-        note.tasks = note.tasks.filter(task => {
-            if (task.scribbled && task.scribbledAt) {
-                return now - task.scribbledAt < DELETE_THRESHOLD_MS;
-            }
-            return true;
-        });
-
-        if (note.tasks.length !== before) changed = true;
-    });
-
-    if (changed) {
-        saveNotes();
-        renderAllNotes();
-    }
-}
-
-export function cleanupTrash() {
-    const now = Date.now();
-
-    const filtered = notes.filter(n => !n.deletedAt || now - n.deletedAt < ONE_DAY);
-    notes.length = 0;
-    notes.push(...filtered);
-
-    saveNotes();
-    updateTrashIcon();
-}
-
-export function addNewNote() {
+addNoteBtn.addEventListener('click', () => {
     const newNote = {
         id: 'note_' + Date.now(),
         title: '',
@@ -226,8 +181,94 @@ export function addNewNote() {
     newNote.layout = createRandomNoteLayout(newNote);
 
     notes.push(newNote);
+
+    activeNoteIndex = notes.length - 1;
     saveNotes();
     renderAllNotes();
+});
 
-    return notes.length - 1;
-}
+fridgeContainer.addEventListener('input', (e) => {
+    const noteEl = e.target.closest('.note-paper');
+    if (!noteEl) return;
+
+    const noteIndex = Number(noteEl.dataset.noteIndex);
+
+    if (e.target.classList.contains('note-title')) {
+        notes[noteIndex].title = e.target.value;
+        e.target.style.height = 'auto';
+        e.target.style.height = e.target.scrollHeight + 'px';
+        saveNotes();
+    }
+
+    if (e.target.classList.contains('note-task-text')) {
+        const taskEl = e.target.closest('.note-task');
+        if (!taskEl) return;
+
+        const taskIndex = Number(taskEl.dataset.taskIndex);
+        notes[noteIndex].tasks[taskIndex].text = e.target.value;
+
+        e.target.style.height = 'auto';
+        e.target.style.height = e.target.scrollHeight + 'px';
+
+        saveNotes();
+    }
+});
+
+fridgeContainer.addEventListener('change', (e) => {
+    const noteEl = e.target.closest('.note-paper');
+    if (!noteEl) return;
+
+    const noteIndex = Number(noteEl.dataset.noteIndex);
+
+    if (e.target.classList.contains('task-checkbox')) {
+        const taskEl = e.target.closest('.note-task');
+        if (!taskEl) return;
+
+        const taskIndex = Number(taskEl.dataset.taskIndex);
+        notes[noteIndex].tasks[taskIndex].checked = e.target.checked;
+        saveNotes();
+    }
+});
+
+document.addEventListener("mousedown", (e) => {
+    const noteEl = e.target.closest(".note-paper");
+
+    if (noteEl) {
+        const newIndex = Number(noteEl.dataset.noteIndex);
+
+        if (newIndex !== activeNoteIndex) {
+            activeNoteIndex = newIndex;
+
+            document.querySelectorAll('.note-paper').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            document.querySelectorAll(`.note-paper[data-note-index="${activeNoteIndex}"]`).forEach(el => {
+                el.classList.add('active');
+            });
+        }
+
+        return;
+    }
+
+    if (
+        e.target.closest("#add-note-btn") ||
+        e.target.closest("#trash-bin") ||
+        e.target.closest("#pen") ||
+        e.target.closest("#eraser")
+    ) {
+        return;
+    }
+
+    if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement
+    ) {
+        document.activeElement.blur();
+    }
+
+    if (activeNoteIndex !== null) {
+        activeNoteIndex = null;
+        renderAllNotes();
+    }
+});
