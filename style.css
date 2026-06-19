@@ -4,12 +4,12 @@
 
 @font-face {
     font-family: 'MyCustomEnglishFont';
-    src: url('fonts/Party-Script.otf') format('opentype');
+    src: url('fonts/Vazirmatn[wght].ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'MyCustomPersianFont';
-    src: url('fonts/Harmattan/Harmattan-Regular.ttf') format('truetype');
+    src: url('fonts/Vazirmatn[wght].ttf') format('truetype');
 }
 
 body {
